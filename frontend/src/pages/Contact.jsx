@@ -1,0 +1,73 @@
+import React from "react";
+import Title from "../components/Title";
+import { assets } from "../assets/assets";
+
+const Contact = () => {
+  return (
+    <div>
+      <div className="text-center text-2xl md:pt-6 pt-12 border-t">
+        <Title text1={"CONTACT"} text2={"US"} />
+      </div>
+
+      <div className="my-5 flex flex-col justify-center md:flex-row gap-10 mb-28 px-5">
+        {/* Left Side Image */}
+        <img
+          className="w-full md:max-w-[400px] object-cover md:block hidden"
+          src={assets.contact_img}
+          alt="contact us"
+        />
+
+        {/* Right Side Contact Form */}
+        <form className="w-full md:max-w-[500px] flex flex-col gap-5">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="name" className="text-sm text-gray-600">
+              Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              placeholder="Your full name"
+              className="border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="email" className="text-sm text-gray-600">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              placeholder="you@example.com"
+              className="border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="message" className="text-sm text-gray-600">
+              Message
+            </label>
+            <textarea
+              id="message"
+              rows="5"
+              placeholder="Write your message..."
+              className="border border-gray-300 px-4 py-2 rounded-md resize-none focus:outline-none focus:ring-1 focus:ring-gray-500"
+              required
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            className="px-6 py-3 text-sm font-medium bg-gray-800 hover:bg-gray-900 text-white duration-300 rounded-md"
+          >
+            Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Contact;

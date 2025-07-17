@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
-import RelatedProducts from "../components/RelatedProducts";
+import { toast } from "react-toastify";
 
 const Product = () => {
   const { productId } = useParams();
@@ -27,10 +27,11 @@ const Product = () => {
 
   const handleAddToCart = () => {
     if (productData.category === "Clothing" && !size) {
-      alert("Please select a size.");
+      toast.info("Please select a size.");
       return;
     }
     addToCart(productData._id, size || "NA");
+    toast.success("Added to cart");
   };
 
   return productData ? (
@@ -116,7 +117,7 @@ const Product = () => {
       </div>
 
       {/* --------- display related products ---------- */}
-      <RelatedProducts category={productData.category} />
+      {/* <RelatedProducts category={productData.category} /> */}
     </div>
   ) : (
     <div className=" opacity-0"></div>

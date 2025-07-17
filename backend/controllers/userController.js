@@ -8,6 +8,14 @@ const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
 };
 
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 // Route for user login
 const loginUser = async (req, res) => {
   try {
@@ -110,15 +118,6 @@ const forgotPassword = async (req, res) => {
     user.tokenExpiry = Date.now() + 15 * 60 * 1000; // 15 min
     await user.save();
 
-    // Send email
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
     await transporter.sendMail({
       from: `"FV7 Support" <${process.env.EMAIL_USER}>`,
       to: email,
@@ -155,4 +154,28 @@ const resetPassword = async (req, res) => {
   }
 };
 
-export { loginUser, registerUser, adminLogin, forgotPassword, resetPassword };
+const contactForm = async (req, res) => {
+  const { name, email, message } = req.body;
+  try {
+    await transporter.sendMail({
+      from: `"Enquiry" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Enquiry from Website Contact Form",
+      html: `<p>Name <b>${name}</b>. Email <b>${email}</b>. Message <b>${message}</b>.</p>`,
+    });
+
+    res.json({ success: true, message: "Message Sent Successfull" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export {
+  loginUser,
+  registerUser,
+  adminLogin,
+  forgotPassword,
+  resetPassword,
+  contactForm,
+};

@@ -72,7 +72,7 @@ import contact_img from "./contact_img.png";
 import razorpay_logo from "./razorpay_logo.png";
 import stripe_logo from "./stripe_logo.png";
 import cross_icon from "./cross_icon.png";
-import fv7logo from "./fv7logo2.jpg";
+import fv7logo from "./UV7_Logo_new.jpg";
 import about from "./about.webp";
 import irfan from "./irfan.jpg";
 import kuldeep from "./kuldeep.jpg";

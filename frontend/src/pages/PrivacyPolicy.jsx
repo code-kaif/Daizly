@@ -10,7 +10,7 @@ const PrivacyPolicy = () => {
 
       <div className="flex flex-col gap-6 max-w-4xl mx-auto text-sm leading-relaxed">
         <p>
-          At <strong>FashionVilla7</strong>, we are committed to protecting the
+          At <strong>UniqueVilla7</strong>, we are committed to protecting the
           privacy and security of our customers. This Privacy Policy outlines
           how we collect, use, and protect your personal information when you
           interact with our website and services.
@@ -55,7 +55,7 @@ const PrivacyPolicy = () => {
           3. Data Protection
         </h3>
         <p>
-          FashionVilla7 employs strict security measures to safeguard your
+          UniqueVilla7 employs strict security measures to safeguard your
           personal information. All payment data is processed using encrypted,
           secure channels.
         </p>
@@ -97,7 +97,7 @@ const PrivacyPolicy = () => {
             href="mailto:fashionvilla7@gmail.com"
             className="text-blue-600 underline"
           >
-            fashionvilla7@gmail.com
+            uniquevilla7@gmail.com
           </a>
           .
         </p>

@@ -51,6 +51,13 @@ const Cart = () => {
               const productData = products.find(
                 (product) => product._id === item._id
               );
+
+              // ⚠️ Safely skip invalid products
+              if (!productData) {
+                console.warn("Product not found for cart item _id:", item._id);
+                return null;
+              }
+
               return (
                 <div
                   key={index}
@@ -58,9 +65,9 @@ const Cart = () => {
                 >
                   <div className="flex items-start gap-6">
                     <img
-                      className="w-16 sm:w-20"
-                      src={productData.image[0]}
-                      alt=""
+                      className="w-16 sm:w-20 object-cover rounded"
+                      src={productData.image?.[0] || assets.placeholder_image}
+                      alt={productData.name || "Product"}
                     />
                     <div>
                       <p className="text-xs sm:text-lg font-medium">
@@ -96,7 +103,7 @@ const Cart = () => {
                     onClick={() => updateQuantity(item._id, item.size, 0)}
                     className="w-4 mr-4 sm:w-5 cursor-pointer"
                     src={assets.bin_icon}
-                    alt=""
+                    alt="delete"
                   />
                 </div>
               );

@@ -1,7 +1,6 @@
 import React from "react";
 import Title from "../components/Title";
 import { assets } from "../assets/assets";
-import NewsletterBox from "../components/NewsletterBox";
 
 const About = () => {
   return (
@@ -10,7 +9,7 @@ const About = () => {
         <Title text1={"ABOUT"} text2={"US"} />
       </div>
 
-      <div className="my-3 flex flex-col md:flex-row gap-16">
+      <div className="my-5 flex flex-col md:flex-row gap-16">
         <img
           className="w-full md:max-w-[350px] md:block hidden"
           src={assets.about}
@@ -18,7 +17,7 @@ const About = () => {
         />
         <div className="flex flex-col justify-center gap-6 md:w-2/4 text-gray-600">
           <p>
-            FashionVilla7 was born out of a passion for innovation and a desire
+            UniqueVilla7 was born out of a passion for innovation and a desire
             to revolutionize the way people shop online. Our journey began with
             a simple idea: to provide a platform where customers can easily
             discover, explore, and purchase a wide range of products from the
@@ -33,7 +32,7 @@ const About = () => {
           </p>
           <b className="text-gray-800">Our Mission</b>
           <p>
-            Our mission at FashionVilla7 is to empower customers with choice,
+            Our mission at UniqueVilla7 is to empower customers with choice,
             convenience, and confidence. We're dedicated to providing a seamless
             shopping experience that exceeds expectations, from browsing and
             ordering to delivery and beyond.

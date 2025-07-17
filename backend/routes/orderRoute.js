@@ -9,6 +9,7 @@ import {
   cancelOrder,
   cancelledOrder,
   exportOrdersCsv,
+  exportMonthlyOrders,
 } from "../controllers/orderController.js";
 import adminAuth from "../middleware/adminAuth.js";
 import authUser from "../middleware/auth.js";
@@ -19,6 +20,8 @@ const orderRouter = express.Router();
 orderRouter.post("/list", adminAuth, allOrders);
 orderRouter.post("/status", adminAuth, updateStatus);
 orderRouter.get("/export", adminAuth, exportOrdersCsv);
+orderRouter.get("/export-monthly", adminAuth, exportMonthlyOrders);
+
 orderRouter.get("/cancelled", adminAuth, cancelledOrder);
 
 // Payment Features

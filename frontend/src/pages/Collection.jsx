@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
-import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 
@@ -11,22 +10,6 @@ const Collection = () => {
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState("relavent");
-
-  const toggleCategory = (e) => {
-    if (category.includes(e.target.value)) {
-      setCategory((prev) => prev.filter((item) => item !== e.target.value));
-    } else {
-      setCategory((prev) => [...prev, e.target.value]);
-    }
-  };
-
-  const toggleSubCategory = (e) => {
-    if (subCategory.includes(e.target.value)) {
-      setSubCategory((prev) => prev.filter((item) => item !== e.target.value));
-    } else {
-      setSubCategory((prev) => [...prev, e.target.value]);
-    }
-  };
 
   const applyFilter = () => {
     let productsCopy = products.slice();
@@ -79,7 +62,7 @@ const Collection = () => {
   }, [sortType]);
 
   return (
-    <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
+    <div className="min-h-screen flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
       {/* Right Side */}
       <div className="flex-1">
         <div className="flex justify-between text-base sm:text-2xl mb-4">

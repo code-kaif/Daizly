@@ -174,7 +174,7 @@ const allOrders = async (req, res) => {
   try {
     const orders = await orderModel
       .find({ orderCancelled: { $ne: true } }) // show only non-cancelled
-      .sort({ date: -1 });
+      .sort({ date: 1 });
     res.json({ success: true, orders });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -269,6 +269,66 @@ const exportOrdersCsv = async (req, res) => {
   }
 };
 
+// Route: /api/order/export-monthly?month=2025-07
+
+const exportMonthlyOrders = async (req, res) => {
+  try {
+    const { month } = req.query;
+
+    if (!month) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Month required" });
+    }
+
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const startOfMonth = new Date(`${month}-01T00:00:00+05:30`);
+    const endOfMonth = new Date(
+      new Date(startOfMonth).setMonth(startOfMonth.getMonth() + 1) - 1
+    );
+
+    const orders = await orderModel.find({
+      date: { $gte: startOfMonth.getTime(), $lte: endOfMonth.getTime() },
+      status: { $ne: "Cancelled" }, // ✅ Skip cancelled orders
+    });
+
+    if (!orders.length) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No orders found" });
+    }
+
+    const csvData = orders.flatMap((order) => {
+      return order.items.map((item) => ({
+        OrderID: order._id,
+        Name: `${order.address.firstName} ${order.address.lastName}`,
+        Mobile: order.address.phone,
+        Address: `${order.address.street}, ${order.address.city}, ${order.address.state} - ${order.address.zipcode}`,
+        Payment: order.paymentMethod,
+        Amount: order.amount,
+        Status: order.status,
+        Date: new Date(order.date + istOffset).toLocaleDateString("en-IN"),
+        ProductName: item.name,
+        Quantity: item.quantity,
+        Size: item.size,
+      }));
+    });
+
+    const { Parser } = require("json2csv");
+    const parser = new Parser();
+    const csv = parser.parse(csvData);
+
+    res.header("Content-Type", "text/csv");
+    res.attachment(`monthly-orders-${month}.csv`);
+    return res.send(csv);
+  } catch (err) {
+    console.error("Monthly Export Error:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to export monthly orders" });
+  }
+};
+
 // Cancel order for user
 const cancelOrder = async (req, res) => {
   try {
@@ -286,16 +346,56 @@ const cancelOrder = async (req, res) => {
         message: "Order already cancelled by user",
       });
 
-    // Only allow cancel if not delivered
     if (order.status === "Delivered")
       return res.json({
         success: false,
         message: "Delivered order cannot be cancelled",
       });
 
+    // Mark order as cancelled
     order.status = "Cancelled";
-    order.orderCancelled = true; // 👈 user initiated
+    order.orderCancelled = true;
     await order.save();
+
+    // Fetch user info
+    const user = await userModel.findById(order.userId);
+
+    // Email content
+    const mailOptions = {
+      from: `"FashionVilla7" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER, // Send to admin
+      subject: `Order Cancelled - ${order._id}`,
+      html: `
+        <h3>🚫 Order Cancelled by User</h3>
+        <p><strong>Order ID:</strong> ${order._id}</p>
+        <p><strong>Status:</strong> ${order.status}</p>
+        <p><strong>Date:</strong> ${new Date(order.date).toLocaleString(
+          "en-IN"
+        )}</p>
+        <hr />
+        <p><strong>Customer:</strong> ${order.address?.firstName || ""} ${
+        order.address?.lastName || ""
+      }</p>
+        <p><strong>Phone:</strong> ${order.address?.phone}</p>
+        <p><strong>Address:</strong> ${order.address?.street}, ${
+        order.address?.city
+      }, ${order.address?.state} - ${order.address?.zipcode}</p>
+        <hr />
+        <h4>🧾 Items:</h4>
+        <ul>
+          ${order.items
+            .map(
+              (item) =>
+                `<li>${item.name} x ${item.quantity} (${item.size})</li>`
+            )
+            .join("")}
+        </ul>
+        <p><strong>Total:</strong> ₹${order.amount}</p>
+      `,
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
 
     res.json({ success: true, message: "Order cancelled successfully" });
   } catch (error) {
@@ -327,4 +427,5 @@ export {
   exportOrdersCsv,
   cancelOrder,
   cancelledOrder,
+  exportMonthlyOrders,
 };

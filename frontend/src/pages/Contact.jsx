@@ -1,8 +1,48 @@
-import React from "react";
+import React, { useContext } from "react";
 import Title from "../components/Title";
 import { assets } from "../assets/assets";
+import { ShopContext } from "../context/ShopContext";
 
 const Contact = () => {
+  const { backendUrl } = useContext(ShopContext);
+  const [result, setResult] = React.useState("Submit");
+
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    setResult("Sending...");
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    const data = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      message: formData.get("message"),
+    };
+
+    try {
+      const response = await fetch(backendUrl + "/api/user/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const resData = await response.json();
+
+      if (resData.success) {
+        setResult("Form Submitted Successfully");
+        form.reset();
+      } else {
+        setResult(resData.message || "Something went wrong.");
+      }
+    } catch (error) {
+      console.error("Error sending form:", error);
+      setResult("Submission failed. Please try again.");
+    }
+  };
+
   return (
     <div>
       <div className="text-center text-2xl md:pt-6 pt-12 border-t">
@@ -18,14 +58,19 @@ const Contact = () => {
         />
 
         {/* Right Side Contact Form */}
-        <form className="w-full md:max-w-[500px] flex flex-col gap-5">
+        <form
+          onSubmit={onSubmit}
+          className="w-full md:max-w-[500px] flex flex-col gap-5"
+        >
           <div className="flex flex-col gap-1">
+            <input type="hidden" name="apikey" value="YOUR_ACCESS_KEY_HERE" />
             <label htmlFor="name" className="text-sm text-gray-600">
               Name
             </label>
             <input
               type="text"
               id="name"
+              name="name"
               placeholder="Your full name"
               className="border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500"
               required
@@ -39,6 +84,7 @@ const Contact = () => {
             <input
               type="email"
               id="email"
+              name="email"
               placeholder="you@example.com"
               className="border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500"
               required
@@ -51,6 +97,7 @@ const Contact = () => {
             </label>
             <textarea
               id="message"
+              name="message"
               rows="5"
               placeholder="Write your message..."
               className="border border-gray-300 px-4 py-2 rounded-md resize-none focus:outline-none focus:ring-1 focus:ring-gray-500"
@@ -62,7 +109,7 @@ const Contact = () => {
             type="submit"
             className="px-6 py-3 text-sm font-medium bg-gray-800 hover:bg-gray-900 text-white duration-300 rounded-md"
           >
-            Send Message
+            {result}
           </button>
         </form>
       </div>

@@ -10,10 +10,9 @@ const Footer = () => {
         <div>
           <img src={assets.fv7logo} className="w-20 mb-5" />
           <p className="w-full md:w-2/3 text-gray-600">
-            FashionVilla7 is your ultimate destination for trendy, affordable,
-            and high-quality fashion. From everyday essentials to statement
+            UniqueVilla7 is your ultimate destination for trendy, affordable,
+            and high-quality products. From everyday essentials to statement
             pieces, we bring the latest styles directly to your doorstep.
-            Discover fashion that fits your vibe—without the hassle.
           </p>
         </div>
 
@@ -30,7 +29,7 @@ const Footer = () => {
           <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
           <ul className="flex flex-col gap-1 text-gray-600">
             <li>+91 7827775050</li>
-            <li>admin@fashionvilla7.in</li>
+            <li>uniquevilla7@gmail.com</li>
           </ul>
         </div>
       </div>
@@ -38,7 +37,7 @@ const Footer = () => {
       <div>
         <hr />
         <p className="py-5 text-sm text-center">
-          Copyright 2025 @fashionvilla7.in - All Right Reserved.
+          Copyright 2025 @uniquevilla7@gmail.com - All Right Reserved.
         </p>
       </div>
     </div>

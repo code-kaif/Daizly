@@ -31,7 +31,7 @@ const Testimonials = () => {
   return (
     <div className="py-16 px-4 sm:px-8 lg:px-16">
       <div className="text-center mb-12">
-        <div className="text-3xl text-center py-10">
+        <div className="md:text-3xl text-2xl text-center py-10">
           <Title text1={"What our"} text2={"Customers say"} />
         </div>
       </div>

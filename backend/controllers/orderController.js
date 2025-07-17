@@ -25,9 +25,9 @@ const sendAdminOrderEmail = async (order) => {
   const mailOptions = {
     from: `"FV7 Store" <${process.env.EMAIL_USER}>`,
     to: process.env.EMAIL_USER,
-    subject: "🛒 New Order Received - FV7",
+    subject: "🛒 New Order Received - UV7",
     html: `
-  <h2>🛒 New Order Placed on FV7</h2>
+  <h2>🛒 New Order Placed on UV7</h2>
   <p><strong>Name:</strong> ${order.address.firstName} ${
       order.address.lastName
     }</p>
@@ -362,7 +362,7 @@ const cancelOrder = async (req, res) => {
 
     // Email content
     const mailOptions = {
-      from: `"FashionVilla7" <${process.env.EMAIL_USER}>`,
+      from: `"UniqueVilla7" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER, // Send to admin
       subject: `Order Cancelled - ${order._id}`,
       html: `

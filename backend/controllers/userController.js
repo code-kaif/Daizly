@@ -157,11 +157,35 @@ const resetPassword = async (req, res) => {
 const contactForm = async (req, res) => {
   const { name, email, message } = req.body;
   try {
+    const escapeHTML = (str) =>
+      str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
     await transporter.sendMail({
-      from: `"Enquiry" <${process.env.EMAIL_USER}>`,
-      to: email,
+      from: `"Enquiry" <${escapeHTML(email)}>`,
+      to: process.env.EMAIL_USER,
       subject: "Enquiry from Website Contact Form",
-      html: `<p>Name <b>${name}</b>. Email <b>${email}</b>. Message <b>${message}</b>.</p>`,
+      html: `
+    <div style="font-family: Arial, sans-serif; padding: 16px; background: #f9f9f9;">
+      <h2 style="color: #2a2a2a;">New Contact Form Enquiry</h2>
+      <div style="margin-bottom:10px;">
+        <strong>Name:</strong> ${escapeHTML(name)}
+      </div>
+      <div style="margin-bottom:10px;">
+        <strong>Email:</strong> ${escapeHTML(email)}
+      </div>
+      <div>
+        <strong>Message:</strong>
+        <pre style="background:#fff; padding:10px; border-radius:4px; border:1px solid #eee; font-size:1em;">${escapeHTML(
+          message
+        )}</pre>
+      </div>
+    </div>
+  `,
     });
 
     res.json({ success: true, message: "Message Sent Successfull" });

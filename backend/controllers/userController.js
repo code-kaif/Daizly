@@ -119,7 +119,7 @@ const forgotPassword = async (req, res) => {
     await user.save();
 
     await transporter.sendMail({
-      from: `"FV7 Support" <${process.env.EMAIL_USER}>`,
+      from: `"UV7 Support" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Password Reset OTP",
       html: `<p>Your OTP is <b>${otp}</b>. It will expire in 15 minutes.</p>`,

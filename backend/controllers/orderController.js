@@ -23,7 +23,7 @@ const transporter = nodemailer.createTransport({
 // Email sending function
 const sendAdminOrderEmail = async (order) => {
   const mailOptions = {
-    from: `"FV7 Store" <${process.env.EMAIL_USER}>`,
+    from: `"UV7 Store" <${process.env.EMAIL_USER}>`,
     to: process.env.EMAIL_USER,
     subject: "🛒 New Order Received - UV7",
     html: `

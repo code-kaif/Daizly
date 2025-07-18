@@ -5,7 +5,7 @@ const connectDB = async () => {
     console.log("DB Connected");
   });
 
-  await mongoose.connect(`${process.env.MONGODB_URI}/fashionvilla`);
+  await mongoose.connect(`${process.env.MONGODB_URI}/uniquevilla7`);
 };
 
 export default connectDB;

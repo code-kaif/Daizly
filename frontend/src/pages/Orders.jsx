@@ -9,6 +9,7 @@ const Orders = () => {
   const [orderData, setorderData] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const loadOrderData = async () => {
@@ -45,6 +46,7 @@ const Orders = () => {
   };
 
   const handleCancelOrder = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.post(
         `${backendUrl}/api/order/cancel`,
@@ -57,6 +59,8 @@ const Orders = () => {
       }
     } catch (error) {
       console.error("Error cancelling order:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -184,18 +188,43 @@ const Orders = () => {
               Do you really want to cancel this order?
             </p>
             <div className="flex justify-center gap-6">
-              <button
-                onClick={handleCancelOrder}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-              >
-                Yes
-              </button>
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded"
-              >
-                No
-              </button>
+              {isLoading ? (
+                <svg
+                  className="animate-spin h-6 w-6 text-red-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"
+                  ></path>
+                </svg>
+              ) : (
+                <>
+                  <button
+                    onClick={handleCancelOrder}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded"
+                  >
+                    No
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

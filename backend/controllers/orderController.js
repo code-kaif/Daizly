@@ -49,7 +49,7 @@ const sendAdminOrderEmail = async (order) => {
   </ul>
 
   <div style="margin-top: 24px;">
-    <a href="http://localhost:5174/orders" target="_blank" style="
+    <a href="https://admin.uniquevilla7.in/orders" target="_blank" style="
       display: inline-block;
       background-color: #111827;
       color: #ffffff;
@@ -243,7 +243,7 @@ const exportOrdersCsv = async (req, res) => {
           OrderID: order._id,
           Name: `${order.address.firstName} ${order.address.lastName}`,
           Mobile: order.address.phone,
-          Address: `${order.address.street}, ${order.address.city}, ${order.address.state} - ${order.address.zipcode}`,
+          Address: `${order.address.houseNo}, ${order.address.street}, ${order.address.area}, ${order.address.city}, ${order.address.state} - ${order.address.zipcode}`,
           Payment: order.paymentMethod,
           Amount: order.amount,
           Status: order.status,
@@ -269,65 +269,65 @@ const exportOrdersCsv = async (req, res) => {
   }
 };
 
-// Route: /api/order/export-monthly?month=2025-07
+// Monthly Orders
 
-const exportMonthlyOrders = async (req, res) => {
-  try {
-    const { month } = req.query;
+// const exportMonthlyOrders = async (req, res) => {
+//   try {
+//     const { month } = req.query;
 
-    if (!month) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Month required" });
-    }
+//     if (!month) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Month required" });
+//     }
 
-    const istOffset = 5.5 * 60 * 60 * 1000;
-    const startOfMonth = new Date(`${month}-01T00:00:00+05:30`);
-    const endOfMonth = new Date(
-      new Date(startOfMonth).setMonth(startOfMonth.getMonth() + 1) - 1
-    );
+//     const istOffset = 5.5 * 60 * 60 * 1000;
+//     const startOfMonth = new Date(`${month}-01T00:00:00+05:30`);
+//     const endOfMonth = new Date(
+//       new Date(startOfMonth).setMonth(startOfMonth.getMonth() + 1) - 1
+//     );
 
-    const orders = await orderModel.find({
-      date: { $gte: startOfMonth.getTime(), $lte: endOfMonth.getTime() },
-      status: { $ne: "Cancelled" }, // ✅ Skip cancelled orders
-    });
+//     const orders = await orderModel.find({
+//       date: { $gte: startOfMonth.getTime(), $lte: endOfMonth.getTime() },
+//       status: { $ne: "Cancelled" }, // ✅ Skip cancelled orders
+//     });
 
-    if (!orders.length) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No orders found" });
-    }
+//     if (!orders.length) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "No orders found" });
+//     }
 
-    const csvData = orders.flatMap((order) => {
-      return order.items.map((item) => ({
-        OrderID: order._id,
-        Name: `${order.address.firstName} ${order.address.lastName}`,
-        Mobile: order.address.phone,
-        Address: `${order.address.street}, ${order.address.city}, ${order.address.state} - ${order.address.zipcode}`,
-        Payment: order.paymentMethod,
-        Amount: order.amount,
-        Status: order.status,
-        Date: new Date(order.date + istOffset).toLocaleDateString("en-IN"),
-        ProductName: item.name,
-        Quantity: item.quantity,
-        Size: item.size,
-      }));
-    });
+//     const csvData = orders.flatMap((order) => {
+//       return order.items.map((item) => ({
+//         OrderID: order._id,
+//         Name: `${order.address.firstName} ${order.address.lastName}`,
+//         Mobile: order.address.phone,
+//         Address: `${order.address.street}, ${order.address.city}, ${order.address.state} - ${order.address.zipcode}`,
+//         Payment: order.paymentMethod,
+//         Amount: order.amount,
+//         Status: order.status,
+//         Date: new Date(order.date + istOffset).toLocaleDateString("en-IN"),
+//         ProductName: item.name,
+//         Quantity: item.quantity,
+//         Size: item.size,
+//       }));
+//     });
 
-    const { Parser } = require("json2csv");
-    const parser = new Parser();
-    const csv = parser.parse(csvData);
+//     const { Parser } = require("json2csv");
+//     const parser = new Parser();
+//     const csv = parser.parse(csvData);
 
-    res.header("Content-Type", "text/csv");
-    res.attachment(`monthly-orders-${month}.csv`);
-    return res.send(csv);
-  } catch (err) {
-    console.error("Monthly Export Error:", err);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to export monthly orders" });
-  }
-};
+//     res.header("Content-Type", "text/csv");
+//     res.attachment(`monthly-orders-${month}.csv`);
+//     return res.send(csv);
+//   } catch (err) {
+//     console.error("Monthly Export Error:", err);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Failed to export monthly orders" });
+//   }
+// };
 
 // Cancel order for user
 const cancelOrder = async (req, res) => {
@@ -377,9 +377,11 @@ const cancelOrder = async (req, res) => {
         order.address?.lastName || ""
       }</p>
         <p><strong>Phone:</strong> ${order.address?.phone}</p>
-        <p><strong>Address:</strong> ${order.address?.street}, ${
-        order.address?.city
-      }, ${order.address?.state} - ${order.address?.zipcode}</p>
+        <p><strong>Address:</strong> ${order.address?.houseNo}, ${
+        order.address?.street
+      }, ${order.address?.area}, ${order.address?.city}, ${
+        order.address?.state
+      } - ${order.address?.zipcode}</p>
         <hr />
         <h4>🧾 Items:</h4>
         <ul>
@@ -427,5 +429,5 @@ export {
   exportOrdersCsv,
   cancelOrder,
   cancelledOrder,
-  exportMonthlyOrders,
+  // exportMonthlyOrders,
 };

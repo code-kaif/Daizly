@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
+  const [isLoading, setIsLoading] = useState(false);
   const {
     navigate,
     backendUrl,
@@ -22,11 +23,12 @@ const PlaceOrder = () => {
     firstName: "",
     lastName: "",
     email: "",
+    houseNo: "",
     street: "",
+    area: "",
     city: "",
     state: "",
     zipcode: "",
-    country: "",
     phone: "",
   });
 
@@ -38,6 +40,7 @@ const PlaceOrder = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
     try {
       let orderItems = [];
 
@@ -99,6 +102,8 @@ const PlaceOrder = () => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -141,15 +146,46 @@ const PlaceOrder = () => {
           type="email"
           placeholder="Email address"
         />
-        <input
-          required
-          onChange={onChangeHandler}
-          name="street"
-          value={formData.street}
-          className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
-          type="text"
-          placeholder="Street"
-        />
+        <div className="flex gap-3">
+          <input
+            required
+            onChange={onChangeHandler}
+            name="houseNo"
+            value={formData.houseNo}
+            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            type="text"
+            placeholder="HouseNo"
+          />
+          <input
+            required
+            onChange={onChangeHandler}
+            name="street"
+            value={formData.street}
+            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            type="text"
+            placeholder="Street"
+          />
+        </div>
+        <div className="flex gap-3">
+          <input
+            required
+            onChange={onChangeHandler}
+            name="zipcode"
+            value={formData.zipcode}
+            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            type="number"
+            placeholder="Pincode / Zipcode"
+          />
+          <input
+            required
+            onChange={onChangeHandler}
+            name="area"
+            value={formData.area}
+            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            type="text"
+            placeholder="Area / Locality"
+          />
+        </div>
         <div className="flex gap-3">
           <input
             required
@@ -167,26 +203,6 @@ const PlaceOrder = () => {
             className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
             type="text"
             placeholder="State"
-          />
-        </div>
-        <div className="flex gap-3">
-          <input
-            required
-            onChange={onChangeHandler}
-            name="zipcode"
-            value={formData.zipcode}
-            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
-            type="number"
-            placeholder="Zipcode"
-          />
-          <input
-            required
-            onChange={onChangeHandler}
-            name="country"
-            value={formData.country}
-            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
-            type="text"
-            placeholder="Country"
           />
         </div>
         <input
@@ -238,10 +254,34 @@ const PlaceOrder = () => {
 
           <div className="w-full text-end mt-8">
             <button
+              disabled={isLoading}
               type="submit"
               className="bg-gray-800 hover:bg-gray-900 duration-200 rounded-md text-white px-16 py-3 text-sm"
             >
-              PLACE ORDER
+              {isLoading ? (
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"
+                  ></path>
+                </svg>
+              ) : (
+                "Place Order"
+              )}
             </button>
           </div>
         </div>

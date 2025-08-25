@@ -9,14 +9,14 @@ const BestSeller = () => {
 
   useEffect(() => {
     const bestProduct = products.filter((item) => item.bestseller);
-    setBestSeller(bestProduct.slice(0, 5));
+    setBestSeller(bestProduct.slice(0, 8));
   }, [products]);
 
   return (
     <div className="my-10">
       <div className="text-center text-3xl py-8">
         <Title text1={"BEST"} text2={"SELLERS"} />
-        <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
+        <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-200">
           This is some items that people's most like
         </p>
       </div>
@@ -28,7 +28,7 @@ const BestSeller = () => {
             id={item._id}
             name={item.name}
             image={item.image}
-            price={item.price}
+            discount={item.discount}
           />
         ))}
       </div>

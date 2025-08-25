@@ -46,15 +46,15 @@ const Login = () => {
   const isLogin = currentState === "Login";
 
   return (
-    <div className="flex h-[80vh] items-center justify-center px-4">
-      <div className="w-full max-w-2xl bg-white shadow-md rounded-lg p-8 transition-all duration-500">
+    <div className="flex h-[80vh] items-center justify-center px-4 bg-[#0E0505]">
+      <div className="w-full max-w-2xl bg-[#1a0f0f] shadow-lg rounded-lg p-8 text-white transition-all duration-500">
         {/* Toggle Buttons */}
         <div className="flex justify-between mb-8">
           <button
             onClick={() => setCurrentState("Login")}
             className={`w-1/2 py-2 font-medium transition border-b-2 ${
               isLogin
-                ? "border-black text-black"
+                ? "border-white text-white"
                 : "border-transparent text-gray-400"
             }`}
           >
@@ -64,7 +64,7 @@ const Login = () => {
             onClick={() => setCurrentState("Sign Up")}
             className={`w-1/2 py-2 font-medium transition border-b-2 ${
               !isLogin
-                ? "border-black text-black"
+                ? "border-white text-white"
                 : "border-transparent text-gray-400"
             }`}
           >
@@ -81,7 +81,7 @@ const Login = () => {
               onChange={(e) => setName(e.target.value)}
               placeholder="Full Name"
               required
-              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-gray-300"
+              className="w-full px-4 py-2 border rounded bg-[#0E0505] text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-gray-600"
             />
           )}
           <input
@@ -90,7 +90,7 @@ const Login = () => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email Address"
             required
-            className="w-full px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-gray-300"
+            className="w-full px-4 py-2 border rounded bg-[#0E0505] text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-gray-600"
           />
 
           <div className="relative">
@@ -100,12 +100,12 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               required
-              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-gray-300"
+              className="w-full px-4 py-2 border rounded bg-[#0E0505] text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-gray-600"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-2 text-sm text-gray-500 hover:text-black"
+              className="absolute right-2 top-2 text-sm text-gray-400 hover:text-white"
             >
               {showPassword ? "Hide" : "Show"}
             </button>
@@ -115,7 +115,7 @@ const Login = () => {
             <div className="text-right text-sm">
               <button
                 onClick={() => navigate("/forgot-password")}
-                className="text-blue-500 hover:underline text-sm"
+                className="text-blue-400 hover:underline text-sm"
               >
                 Forgot Password?
               </button>
@@ -124,7 +124,7 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-md hover:opacity-90 transition"
+            className="w-full py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-md transition"
           >
             {isLogin ? "Sign In" : "Sign Up"}
           </button>

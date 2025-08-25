@@ -27,35 +27,35 @@ const Login = ({ setToken }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center w-full">
-      <div className="bg-white shadow-md rounded-lg px-8 py-6 max-w-md">
-        <h1 className="text-2xl font-bold mb-4">Admin Panel</h1>
+      <div className="bg-[#0E0505] shadow-md rounded-lg px-8 py-6 max-w-md border">
+        <h1 className="text-2xl font-bold mb-4 text-white">Admin Panel</h1>
         <form onSubmit={onSubmitHandler}>
           <div className="mb-3 min-w-72">
-            <p className="text-sm font-medium text-gray-700 mb-2">
+            <p className="text-sm font-medium text-gray-200 mb-2">
               Email Address
             </p>
             <input
               onChange={(e) => setEmail(e.target.value)}
               value={email}
-              className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none"
+              className="w-full bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white placeholder-gray-500"
               type="email"
               placeholder="your@email.com"
               required
             />
           </div>
           <div className="mb-3 min-w-72">
-            <p className="text-sm font-medium text-gray-700 mb-2">Password</p>
+            <p className="text-sm font-medium text-gray-200 mb-2">Password</p>
             <input
               onChange={(e) => setPassword(e.target.value)}
               value={password}
-              className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none"
+              className="w-full bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white placeholder-gray-500"
               type="password"
               placeholder="Enter your password"
               required
             />
           </div>
           <button
-            className="mt-2 w-full py-2 px-4 bg-gray-800 hover:bg-gray-900 text-white rounded-md"
+            className="mt-2 w-full py-2 px-4 bg-gray-700 hover:bg-gray-800 text-white rounded-md"
             type="submit"
           >
             {" "}

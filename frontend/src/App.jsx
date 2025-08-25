@@ -18,10 +18,12 @@ import Verify from "./pages/Verify";
 import ForgotPassword from "./components/ForgetPassword";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ScrollToTop from "./components/ScrollToTop";
+import ReturnPolicy from "./pages/ReturnPolicy";
+import ShippingPolicy from "./pages/ShippingPolicy";
 
 const App = () => {
   return (
-    <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+    <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] bg-[#0E0505]">
       <ToastContainer />
       <Navbar />
       <SearchBar />
@@ -39,6 +41,8 @@ const App = () => {
         <Route path="/verify" element={<Verify />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/return-policy" element={<ReturnPolicy />} />
+        <Route path="/shipping-policy" element={<ShippingPolicy />} />
       </Routes>
       <Footer />
     </div>

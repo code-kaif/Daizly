@@ -29,33 +29,39 @@ const testimonials = [
 
 const Testimonials = () => {
   return (
-    <div className="py-16 px-4 sm:px-8 lg:px-16">
+    <div className="py-16 px-4 sm:px-8 lg:px-16 bg-[#0E0505] text-white">
+      {/* Section Title */}
       <div className="text-center mb-12">
         <div className="md:text-3xl text-2xl text-center py-10">
           <Title text1={"What our"} text2={"Customers say"} />
         </div>
       </div>
 
+      {/* Testimonials Grid */}
       <div className="grid md:grid-cols-3 gap-10">
         {testimonials.map((testimonial, index) => (
           <div
             key={index}
-            className="bg-white shadow-md rounded-lg p-6 text-center transition transform hover:scale-[1.02] duration-300"
+            className="bg-gray-950 shadow-lg shadow-black/40 rounded-2xl p-6 text-center 
+                       transition transform hover:scale-[1.03] hover:shadow-white/20 duration-300"
           >
             <img
               src={testimonial.image}
               alt={testimonial.name}
-              className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
+              className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-white/20"
             />
-            <h3 className="text-lg font-semibold text-gray-700">
+            <h3 className="text-lg font-semibold text-white">
               {testimonial.name}
             </h3>
             <div className="flex justify-center my-2">
               {[...Array(testimonial.rating)].map((_, i) => (
-                <FaStar key={i} className="text-yellow-500" />
+                <FaStar
+                  key={i}
+                  className="text-yellow-400 drop-shadow-[0_0_4px_rgba(255,255,0,0.4)]"
+                />
               ))}
             </div>
-            <p className="text-gray-600 text-sm mt-2">{testimonial.feedback}</p>
+            <p className="text-gray-400 text-sm mt-2">{testimonial.feedback}</p>
           </div>
         ))}
       </div>

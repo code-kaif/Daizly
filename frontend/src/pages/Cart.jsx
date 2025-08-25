@@ -3,6 +3,7 @@ import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import { assets } from "../assets/assets";
 import CartTotal from "../components/CartTotal";
+import { FaTrash } from "react-icons/fa";
 
 const Cart = () => {
   const { token, products, currency, cartItems, updateQuantity, navigate } =
@@ -35,11 +36,11 @@ const Cart = () => {
       </div>
 
       {cartData.length === 0 ? (
-        <div className="text-center py-32 text-gray-600">
+        <div className="text-center py-32 text-gray-200">
           <p className="text-xl mb-6">Cart is empty. Go for shopping!</p>
           <button
             onClick={() => navigate("/collection")}
-            className="px-6 py-3 bg-black text-white text-sm hover:bg-gray-900 transition rounded"
+            className="px-6 py-3 bg-gray-700 text-white text-sm hover:bg-gray-900 transition rounded"
           >
             Shop Now
           </button>
@@ -61,7 +62,7 @@ const Cart = () => {
               return (
                 <div
                   key={index}
-                  className="py-4 border-t border-b text-gray-700 grid grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4"
+                  className="py-4 border-t border-b text-gray-200 grid grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4"
                 >
                   <div className="flex items-start gap-6">
                     <img
@@ -78,7 +79,7 @@ const Cart = () => {
                           {currency}
                           {productData.price}
                         </p>
-                        <p className="px-2 sm:px-3 sm:py-1 border bg-slate-50">
+                        <p className="px-2 sm:px-3 sm:py-1 border bg-gray-900">
                           {item.size}
                         </p>
                       </div>
@@ -94,16 +95,14 @@ const Cart = () => {
                             Number(e.target.value)
                           )
                     }
-                    className="border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1"
+                    className="border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1 bg-gray-900"
                     type="number"
                     min={1}
                     defaultValue={item.quantity}
                   />
-                  <img
+                  <FaTrash
                     onClick={() => updateQuantity(item._id, item.size, 0)}
-                    className="w-4 mr-4 sm:w-5 cursor-pointer"
-                    src={assets.bin_icon}
-                    alt="delete"
+                    className="text-red-500 cursor-pointer w-4 h-4 sm:w-5 sm:h-5 mr-4 hover:text-red-700 transition-colors duration-200"
                   />
                 </div>
               );
@@ -116,7 +115,7 @@ const Cart = () => {
               <div className="w-full text-end">
                 <button
                   onClick={() => navigate(token ? "/place-order" : "/login")}
-                  className="bg-gray-800 hover:bg-gray-900 text-white rounded-md text-sm my-8 px-8 py-3"
+                  className="bg-gray-800 hover:bg-gray-900 text-white rounded-md text-sm my-8 px-8 py-3 font-medium"
                 >
                   PROCEED TO CHECKOUT
                 </button>

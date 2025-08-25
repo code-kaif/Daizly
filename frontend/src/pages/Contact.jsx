@@ -60,11 +60,11 @@ const Contact = () => {
         {/* Right Side Contact Form */}
         <form
           onSubmit={onSubmit}
-          className="w-full md:max-w-[500px] flex flex-col gap-5"
+          className="w-full md:max-w-[500px] flex flex-col gap-5 bg-[#0E0505] text-white"
         >
           <div className="flex flex-col gap-1">
             <input type="hidden" name="apikey" value="YOUR_ACCESS_KEY_HERE" />
-            <label htmlFor="name" className="text-sm text-gray-600">
+            <label htmlFor="name" className="text-sm text-gray-200">
               Name
             </label>
             <input
@@ -72,13 +72,13 @@ const Contact = () => {
               id="name"
               name="name"
               placeholder="Your full name"
-              className="border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500"
+              className="bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white placeholder-gray-500"
               required
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm text-gray-600">
+            <label htmlFor="email" className="text-sm text-gray-200">
               Email
             </label>
             <input
@@ -86,13 +86,13 @@ const Contact = () => {
               id="email"
               name="email"
               placeholder="you@example.com"
-              className="border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-1 focus:ring-gray-500"
+              className="bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white placeholder-gray-500"
               required
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="message" className="text-sm text-gray-600">
+            <label htmlFor="message" className="text-sm text-gray-200">
               Message
             </label>
             <textarea
@@ -100,14 +100,14 @@ const Contact = () => {
               name="message"
               rows="5"
               placeholder="Write your message..."
-              className="border border-gray-300 px-4 py-2 rounded-md resize-none focus:outline-none focus:ring-1 focus:ring-gray-500"
+              className="bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-gray-500 text-white placeholder-gray-500"
               required
             ></textarea>
           </div>
 
           <button
             type="submit"
-            className="px-6 py-3 text-sm font-medium bg-gray-800 hover:bg-gray-900 text-white duration-300 rounded-md"
+            className="px-6 py-3 text-sm font-medium bg-white text-[#0E0505] hover:bg-gray-300 duration-300 rounded-md"
           >
             {result}
           </button>

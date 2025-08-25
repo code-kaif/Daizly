@@ -23,11 +23,11 @@ const transporter = nodemailer.createTransport({
 // Email sending function
 const sendAdminOrderEmail = async (order) => {
   const mailOptions = {
-    from: `"UV7 Store" <${process.env.EMAIL_USER}>`,
+    from: `"DAIZLY" <${process.env.EMAIL_USER}>`,
     to: process.env.EMAIL_USER,
-    subject: "🛒 New Order Received - UV7",
+    subject: "🛒 New Order Received - Daizly",
     html: `
-  <h2>🛒 New Order Placed on UV7</h2>
+  <h2>🛒 New Order Placed on Daizly</h2>
   <p><strong>Name:</strong> ${order.address.firstName} ${
       order.address.lastName
     }</p>
@@ -269,66 +269,6 @@ const exportOrdersCsv = async (req, res) => {
   }
 };
 
-// Monthly Orders
-
-// const exportMonthlyOrders = async (req, res) => {
-//   try {
-//     const { month } = req.query;
-
-//     if (!month) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Month required" });
-//     }
-
-//     const istOffset = 5.5 * 60 * 60 * 1000;
-//     const startOfMonth = new Date(`${month}-01T00:00:00+05:30`);
-//     const endOfMonth = new Date(
-//       new Date(startOfMonth).setMonth(startOfMonth.getMonth() + 1) - 1
-//     );
-
-//     const orders = await orderModel.find({
-//       date: { $gte: startOfMonth.getTime(), $lte: endOfMonth.getTime() },
-//       status: { $ne: "Cancelled" }, // ✅ Skip cancelled orders
-//     });
-
-//     if (!orders.length) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "No orders found" });
-//     }
-
-//     const csvData = orders.flatMap((order) => {
-//       return order.items.map((item) => ({
-//         OrderID: order._id,
-//         Name: `${order.address.firstName} ${order.address.lastName}`,
-//         Mobile: order.address.phone,
-//         Address: `${order.address.street}, ${order.address.city}, ${order.address.state} - ${order.address.zipcode}`,
-//         Payment: order.paymentMethod,
-//         Amount: order.amount,
-//         Status: order.status,
-//         Date: new Date(order.date + istOffset).toLocaleDateString("en-IN"),
-//         ProductName: item.name,
-//         Quantity: item.quantity,
-//         Size: item.size,
-//       }));
-//     });
-
-//     const { Parser } = require("json2csv");
-//     const parser = new Parser();
-//     const csv = parser.parse(csvData);
-
-//     res.header("Content-Type", "text/csv");
-//     res.attachment(`monthly-orders-${month}.csv`);
-//     return res.send(csv);
-//   } catch (err) {
-//     console.error("Monthly Export Error:", err);
-//     res
-//       .status(500)
-//       .json({ success: false, message: "Failed to export monthly orders" });
-//   }
-// };
-
 // Cancel order for user
 const cancelOrder = async (req, res) => {
   try {
@@ -362,7 +302,7 @@ const cancelOrder = async (req, res) => {
 
     // Email content
     const mailOptions = {
-      from: `"UniqueVilla7" <${process.env.EMAIL_USER}>`,
+      from: `"DAIZLY" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER, // Send to admin
       subject: `Order Cancelled - ${order._id}`,
       html: `
@@ -429,5 +369,4 @@ export {
   exportOrdersCsv,
   cancelOrder,
   cancelledOrder,
-  // exportMonthlyOrders,
 };

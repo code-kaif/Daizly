@@ -3,7 +3,7 @@ import add_icon from "./add_icon.png";
 import order_icon from "./order_icon.png";
 import upload_area from "./upload_area.png";
 import parcel_icon from "./parcel_icon.svg";
-import fv7logo from "./UV7_Logo_new.jpg";
+import daizlylogo from "./logo1.png";
 
 export const assets = {
   logo,
@@ -11,5 +11,5 @@ export const assets = {
   order_icon,
   upload_area,
   parcel_icon,
-  fv7logo,
+  daizlylogo,
 };

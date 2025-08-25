@@ -24,7 +24,7 @@ const App = () => {
   }, [token]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#0E0505]">
       <ToastContainer />
       {token === "" ? (
         <Login setToken={setToken} />
@@ -34,7 +34,7 @@ const App = () => {
           <hr />
           <div className="flex w-full">
             <Sidebar />
-            <div className="w-[70%] mx-auto ml-[max(5vw,25px)] my-8 text-gray-600 text-base">
+            <div className="w-[70%] mx-auto ml-[max(5vw,25px)] my-8 text-gray-200 text-base">
               <Routes>
                 <Route path="/" element={<Navigate to="/add" replace />} />
                 <Route path="/add" element={<Add token={token} />} />

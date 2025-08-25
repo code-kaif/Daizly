@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { Link } from "react-router-dom";
 
-const ProductItem = ({ id, image, name, price }) => {
+const ProductItem = ({ id, image, name, discount }) => {
   const { currency } = useContext(ShopContext);
 
   return (
@@ -12,18 +12,25 @@ const ProductItem = ({ id, image, name, price }) => {
       to={`/product/${id}`}
     >
       <div className="overflow-hidden rounded-md bg-white shadow-sm">
-        <div className="w-full aspect-[4/5] bg-gray-100 flex items-center justify-center">
+        <div className="w-full aspect-[4/5] bg-gray-100 flex items-center justify-center relative">
+          {/* First image */}
           <img
             src={image[0]}
             alt={name}
-            className="h-full w-full object-cover hover:scale-110 transition-transform duration-300"
+            className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100 hover:opacity-0"
+          />
+          {/* Second image (on hover) */}
+          <img
+            src={image[1]}
+            alt={name}
+            className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-0 hover:opacity-100"
           />
         </div>
       </div>
-      <p className="pt-3 pb-1 text-sm line-clamp-1">{name}</p>
-      <p className="text-sm font-medium">
+      <p className="pt-3 pb-1 text-sm line-clamp-1 text-[#fff]">{name}</p>
+      <p className="text-sm font-medium text-[#fff]">
         {currency}
-        {price}
+        {discount}
       </p>
     </Link>
   );

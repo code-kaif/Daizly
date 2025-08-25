@@ -8,36 +8,39 @@ const Footer = () => {
     <div>
       <div className="flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 my-10 mt-40 text-sm">
         <div>
-          <img src={assets.fv7logo} className="w-20 mb-5" />
-          <p className="w-full md:w-2/3 text-gray-600">
-            UniqueVilla7 is your ultimate destination for trendy, affordable,
-            and high-quality products. From everyday essentials to statement
-            pieces, we bring the latest styles directly to your doorstep.
+          <img src={assets.logo} className="w-20 mb-5" />
+          <p className="w-full md:w-2/3 text-[#fff]">
+            DAIZLY is your ultimate destination for stylish, premium-quality,
+            and affordable products. From everyday essentials to statement
+            pieces, we bring you the latest trends with a touch of
+            elegance—delivered right to your doorstep.
           </p>
         </div>
 
-        <div>
-          <p className="text-xl font-medium mb-5">COMPANY</p>
-          <ul className="flex flex-col gap-1 text-gray-600 cursor-pointer">
-            <li onClick={() => navigate("/")}>Home</li>
-            <li onClick={() => navigate("/about")}>About us</li>
+        <div className="text-[#fff]">
+          <p className="text-xl font-medium mb-5">POLICY</p>
+          <ul className="flex flex-col gap-1 cursor-pointer">
             <li onClick={() => navigate("/privacy-policy")}>Privacy policy</li>
+            <li onClick={() => navigate("/return-policy")}>Return policy</li>
+            <li onClick={() => navigate("/shipping-policy")}>
+              Shipping policy
+            </li>
           </ul>
         </div>
 
-        <div>
+        <div className="text-[#fff]">
           <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
-          <ul className="flex flex-col gap-1 text-gray-600">
-            <li>+91 7827775050</li>
-            <li>uniquevilla7@gmail.com</li>
+          <ul className="flex flex-col gap-1">
+            <li>+91 93159 43603</li>
+            <li>daizly01@gmail.com</li>
           </ul>
         </div>
       </div>
 
       <div>
         <hr />
-        <p className="py-5 text-sm text-center">
-          Copyright 2025 @uniquevilla7@gmail.com - All Right Reserved.
+        <p className="py-5 text-sm text-center text-[#fff]">
+          Copyright 2025 daizly01@gmail.com - All Right Reserved.
         </p>
       </div>
     </div>

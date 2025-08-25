@@ -32,16 +32,16 @@ const Cancel = ({ token }) => {
       <h2>Cancelled Orders</h2>
 
       {cancelledOrders.length === 0 ? (
-        <p className="text-gray-500 my-3 md:my-4">No cancelled orders found.</p>
+        <p className="text-gray-200 my-3 md:my-4">No cancelled orders found.</p>
       ) : (
         <div className="space-y-6 my-3 md:my-4">
           {cancelledOrders.map((order, idx) => (
             <div
               key={idx}
-              className="bg-white shadow-sm border border-red-300 p-6 rounded-md text-gray-700"
+              className="shadow-sm border border-gray-300 p-6 rounded-md text-gray-200"
             >
               {/* Order Header */}
-              <div className="mb-4 grid sm:grid-cols-2 gap-2 text-sm text-gray-700">
+              <div className="mb-4 grid sm:grid-cols-2 gap-2 text-sm text-gray-200">
                 <p>
                   <strong>Name:</strong>{" "}
                   {order.address.firstName + " " + order.address.lastName}
@@ -78,8 +78,8 @@ const Cancel = ({ token }) => {
                         className="w-16 h-16 object-cover rounded"
                       />
                       <div>
-                        <p className="font-medium text-gray-800">{item.name}</p>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="font-medium text-gray-200">{item.name}</p>
+                        <p className="text-sm text-gray-200 mt-1">
                           ₹{item.price} | Quantity: {item.quantity} | Size:{" "}
                           {item.size}
                         </p>

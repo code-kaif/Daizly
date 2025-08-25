@@ -9,61 +9,57 @@ const About = () => {
         <Title text1={"ABOUT"} text2={"US"} />
       </div>
 
-      <div className="my-5 flex flex-col md:flex-row gap-16">
-        <img
+      <div className="my-5 flex flex-col md:flex-row justify-center gap-16">
+        {/* <img
           className="w-full md:max-w-[350px] md:block hidden"
           src={assets.about}
           alt="about us image"
-        />
-        <div className="flex flex-col justify-center gap-6 md:w-2/4 text-gray-600">
+        /> */}
+        <div className="flex flex-col justify-center gap-6 md:w-3/4 text-gray-200">
           <p>
-            UniqueVilla7 was born out of a passion for innovation and a desire
-            to revolutionize the way people shop online. Our journey began with
-            a simple idea: to provide a platform where customers can easily
-            discover, explore, and purchase a wide range of products from the
-            comfort of their homes.
+            At <b>DAIZLY</b>, we’re not just creating jackets — we’re creating
+            the future of fashion.
           </p>
           <p>
-            Since our inception, we've worked tirelessly to curate a diverse
-            selection of high-quality products that cater to every taste and
-            preference. From fashion and beauty to electronics and home
-            essentials, we offer an extensive collection sourced from trusted
-            brands and suppliers.
+            Our journey started with a simple idea: <br />
+            👉 What if a leather jacket could be more than just style?
           </p>
-          <b className="text-gray-800">Our Mission</b>
           <p>
-            Our mission at UniqueVilla7 is to empower customers with choice,
-            convenience, and confidence. We're dedicated to providing a seamless
-            shopping experience that exceeds expectations, from browsing and
-            ordering to delivery and beyond.
+            We combine timeless leather craftsmanship with cutting-edge
+            technology, bringing innovation into everyday fashion. Every DAIZLY
+            leather jacket is carefully designed to deliver unmatched comfort,
+            durability, and style — while also offering something truly unique:
+            <b> NFC-powered smart features.</b>
           </p>
-        </div>
-      </div>
 
-      <div className=" text-xl py-4">
-        <Title text1={"WHY"} text2={"CHOOSE US"} />
-      </div>
+          <b className="text-gray-400">NFC Innovation in Fashion</b>
+          <p>
+            Each DAIZLY jacket comes with an integrated NFC tag, allowing you
+            to:
+            <ul className="list-disc list-inside mt-2 space-y-1">
+              <li>Instantly verify product authenticity</li>
+              <li>Access exclusive DAIZLY content & styling tips</li>
+              <li>Register your jacket for warranty & updates</li>
+              <li>Connect to digital experiences with just a tap</li>
+            </ul>
+          </p>
 
-      <div className="flex flex-col md:flex-row text-sm mb-20">
-        <div className="border px-10 md:px-16 py-8 sm:py-20 flex flex-col gap-5">
-          <b>Quality Assurance:</b>
-          <p className=" text-gray-600">
-            We meticulously select and vet each product to ensure it meets our
-            stringent quality standards.
+          <b className="text-gray-400">Why Choose DAIZLY?</b>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Premium leather with modern designs</li>
+            <li>Jackets that blend fashion + technology</li>
+            <li>
+              A brand that values individuality, innovation, and timeless
+              confidence
+            </li>
+          </ul>
+
+          <p>
+            With DAIZLY, your jacket is more than clothing —{" "}
+            <b>it’s your digital companion.</b>
           </p>
-        </div>
-        <div className="border px-10 md:px-16 py-8 sm:py-20 flex flex-col gap-5">
-          <b>Convenience:</b>
-          <p className=" text-gray-600">
-            With our user-friendly interface and hassle-free ordering process,
-            shopping becomes more easier.
-          </p>
-        </div>
-        <div className="border px-10 md:px-16 py-8 sm:py-20 flex flex-col gap-5">
-          <b>Cash on Delevery:</b>
-          <p className=" text-gray-600">
-            We providing cash on delevery on each and every product, that build
-            more trust with custoemrs.
+          <p>
+            <b>Wear the future. Own the style.</b>
           </p>
         </div>
       </div>

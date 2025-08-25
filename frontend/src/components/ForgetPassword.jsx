@@ -49,7 +49,7 @@ const ForgotPassword = () => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 h-[70vh]">
-      <h2 className="text-2xl font-semibold text-gray-800">Forgot Password</h2>
+      <h2 className="text-2xl font-semibold text-gray-200">Forgot Password</h2>
       {step === 1 ? (
         <>
           <input
@@ -57,12 +57,12 @@ const ForgotPassword = () => {
             placeholder="Your Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-72 px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-gray-300"
+            className="px-4 py-2 border rounded bg-[#0E0505] text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-gray-600"
           />
           <button
             onClick={sendOtp}
             disabled={isLoading}
-            className="bg-gray-800 hover:bg-gray-950 duration-200 rounded-md text-white px-16 py-3 text-sm"
+            className="bg-gray-800 hover:bg-gray-700 duration-200 rounded-md text-white px-16 py-3 text-sm"
           >
             {isLoading ? (
               <svg
@@ -97,18 +97,18 @@ const ForgotPassword = () => {
             placeholder="Enter OTP"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            className="w-72 px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-gray-300"
+            className="px-4 py-2 border rounded bg-[#0E0505] text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-gray-600"
           />
           <input
             type="password"
             placeholder="New Password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="w-72 px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-gray-300"
+            className="px-4 py-2 border rounded bg-[#0E0505] text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-gray-600"
           />
           <button
             onClick={resetPassword}
-            className="bg-gray-800 hover:bg-gray-950 duration-200 rounded-md text-white px-16 py-3 text-sm"
+            className="bg-gray-800 hover:bg-gray-700 duration-200 rounded-md text-white px-16 py-3 text-sm"
           >
             Reset Password
           </button>

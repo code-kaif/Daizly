@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { assets } from "../assets/assets";
+import { Upload } from "lucide-react";
 import axios from "axios";
 import { backendUrl } from "../App";
 import { toast } from "react-toastify";
@@ -13,7 +13,8 @@ const Add = ({ token }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("Clothing");
+  const [discount, setDiscount] = useState("");
+  const [category, setCategory] = useState("Jacket");
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,10 +25,10 @@ const Add = ({ token }) => {
 
     try {
       const formData = new FormData();
-
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
+      formData.append("discount", discount);
       formData.append("category", category);
       formData.append("bestseller", bestseller);
       formData.append("sizes", JSON.stringify(sizes));
@@ -52,6 +53,7 @@ const Add = ({ token }) => {
         setImage3(false);
         setImage4(false);
         setPrice("");
+        setDiscount("");
         setSizes([]);
         setBestseller(false);
       } else {
@@ -68,18 +70,27 @@ const Add = ({ token }) => {
   return (
     <form
       onSubmit={onSubmitHandler}
-      className="flex flex-col w-full items-start gap-3"
+      className="flex flex-col w-full items-start gap-6 bg-[#0E0505] text-white rounded-lg"
     >
-      <div>
+      {/* Image Upload */}
+      <div className="w-full">
         <p className="mb-2">Upload Image</p>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3">
           {[image1, image2, image3, image4].map((img, index) => (
-            <label key={index} htmlFor={`image${index + 1}`}>
-              <img
-                className="w-20"
-                src={!img ? assets.upload_area : URL.createObjectURL(img)}
-                alt=""
-              />
+            <label
+              key={index}
+              htmlFor={`image${index + 1}`}
+              className="w-full sm:w-20 h-24 sm:h-20 border border-gray-700 rounded-md flex items-center justify-center cursor-pointer bg-[#1A0E0E] hover:border-gray-500 transition"
+            >
+              {img ? (
+                <img
+                  className="w-full h-full object-cover rounded-md"
+                  src={URL.createObjectURL(img)}
+                  alt="preview"
+                />
+              ) : (
+                <Upload className="text-gray-400 w-6 h-6" />
+              )}
               <input
                 onChange={(e) => {
                   const file = e.target.files[0];
@@ -97,103 +108,120 @@ const Add = ({ token }) => {
         </div>
       </div>
 
+      {/* Name */}
       <div className="w-full">
         <p className="mb-2">Product name</p>
         <input
           onChange={(e) => setName(e.target.value)}
           value={name}
-          className="w-full max-w-[500px] px-3 py-2"
+          className="w-full bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white placeholder-gray-500"
           type="text"
           placeholder="Type here"
           required
         />
       </div>
 
+      {/* Description */}
       <div className="w-full">
         <p className="mb-2">Product description</p>
         <textarea
           onChange={(e) => setDescription(e.target.value)}
           value={description}
-          className="w-full max-w-[500px] px-3 py-2"
+          className="w-full bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white placeholder-gray-500"
           placeholder="Write content here"
+          rows={4}
           required
         />
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-2 w-full sm:gap-8">
-        <div>
-          <p className="mb-2">Product category</p>
-          <select
-            onChange={(e) => setCategory(e.target.value)}
-            value={category}
-            className="w-full px-3 py-2"
-          >
-            <option value="Clothing">Clothing</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Beauty">Beauty</option>
-            <option value="Accessories">Accessories</option>
-            <option value="Home & Living">Home & Living</option>
-          </select>
-        </div>
-
-        <div>
+      {/* Price & Discount */}
+      <div className="flex flex-col sm:flex-row gap-4 w-full">
+        <div className="flex-1">
           <p className="mb-2">Product Price</p>
           <input
             onChange={(e) => setPrice(e.target.value)}
             value={price}
-            className="w-full px-3 py-2 sm:w-[120px]"
-            type="Number"
+            className="w-full bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white placeholder-gray-500"
+            type="number"
             placeholder="99"
+          />
+        </div>
+        <div className="flex-1">
+          <p className="mb-2">Discount Price</p>
+          <input
+            onChange={(e) => setDiscount(e.target.value)}
+            value={discount}
+            className="w-full bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white placeholder-gray-500"
+            type="number"
+            placeholder="69"
           />
         </div>
       </div>
 
-      {category === "Clothing" && (
-        <div>
-          <p className="mb-2">Product Sizes</p>
-          <div className="flex gap-3 flex-wrap">
-            {["S", "M", "L", "XL", "XXL"].map((size) => (
-              <div
-                key={size}
-                onClick={() =>
-                  setSizes((prev) =>
-                    prev.includes(size)
-                      ? prev.filter((item) => item !== size)
-                      : [...prev, size]
-                  )
-                }
-              >
-                <p
-                  className={`${
-                    sizes.includes(size)
-                      ? "bg-gray-500 text-white"
-                      : "bg-slate-200"
-                  } px-3 py-1 cursor-pointer`}
-                >
-                  {size}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Category */}
+      <div className="w-full">
+        <p className="mb-2">Product category</p>
+        <select
+          onChange={(e) => setCategory(e.target.value)}
+          value={category}
+          className="w-full bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white"
+        >
+          <option value="Jacket">Jacket</option>
+          <option value="Shirt">Shirt</option>
+          <option value="T-Shirt">T-Shirt</option>
+          <option value="Hoodie">Hoodie</option>
+          <option value="Swetshirt">Swetshirt</option>
+        </select>
+      </div>
 
-      <div className="flex gap-2 mt-2">
+      {/* Sizes */}
+      <div className="w-full">
+        <p className="mb-2">Product Sizes</p>
+        <div className="flex gap-3 flex-wrap">
+          {["S", "M", "L", "XL", "XXL"].map((size) => (
+            <div
+              key={size}
+              onClick={() =>
+                setSizes((prev) =>
+                  prev.includes(size)
+                    ? prev.filter((item) => item !== size)
+                    : [...prev, size]
+                )
+              }
+            >
+              <p
+                className={`px-3 py-1 cursor-pointer rounded-md ${
+                  sizes.includes(size)
+                    ? "bg-gray-600 text-white"
+                    : "bg-[#1A0E0E] border border-gray-700 text-gray-300"
+                }`}
+              >
+                {size}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Bestseller */}
+      <div className="flex gap-2 mt-2 items-center">
         <input
           onChange={() => setBestseller((prev) => !prev)}
           checked={bestseller}
           type="checkbox"
           id="bestseller"
+          className="accent-gray-600"
         />
-        <label className="cursor-pointer" htmlFor="bestseller">
+        <label className="cursor-pointer text-gray-300" htmlFor="bestseller">
           Add to bestseller
         </label>
       </div>
 
+      {/* Submit */}
       <button
         type="submit"
         disabled={isLoading}
-        className="w-28 py-3 mt-4 bg-gray-800 hover:bg-gray-900 text-white rounded-md flex items-center justify-center"
+        className="w-full sm:w-32 py-3 mt-4 bg-gray-700 hover:bg-gray-800 text-white rounded-md flex items-center justify-center"
       >
         {isLoading ? (
           <svg

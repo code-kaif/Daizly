@@ -123,7 +123,7 @@ const PlaceOrder = () => {
             onChange={onChangeHandler}
             name="firstName"
             value={formData.firstName}
-            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
             type="text"
             placeholder="First name"
           />
@@ -132,7 +132,7 @@ const PlaceOrder = () => {
             onChange={onChangeHandler}
             name="lastName"
             value={formData.lastName}
-            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
             type="text"
             placeholder="Last name"
           />
@@ -142,7 +142,7 @@ const PlaceOrder = () => {
           onChange={onChangeHandler}
           name="email"
           value={formData.email}
-          className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+          className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
           type="email"
           placeholder="Email address"
         />
@@ -152,7 +152,7 @@ const PlaceOrder = () => {
             onChange={onChangeHandler}
             name="houseNo"
             value={formData.houseNo}
-            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
             type="text"
             placeholder="HouseNo"
           />
@@ -161,7 +161,7 @@ const PlaceOrder = () => {
             onChange={onChangeHandler}
             name="street"
             value={formData.street}
-            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
             type="text"
             placeholder="Street"
           />
@@ -172,7 +172,7 @@ const PlaceOrder = () => {
             onChange={onChangeHandler}
             name="zipcode"
             value={formData.zipcode}
-            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
             type="number"
             placeholder="Pincode / Zipcode"
           />
@@ -181,7 +181,7 @@ const PlaceOrder = () => {
             onChange={onChangeHandler}
             name="area"
             value={formData.area}
-            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
             type="text"
             placeholder="Area / Locality"
           />
@@ -192,7 +192,7 @@ const PlaceOrder = () => {
             onChange={onChangeHandler}
             name="city"
             value={formData.city}
-            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
             type="text"
             placeholder="City"
           />
@@ -200,7 +200,7 @@ const PlaceOrder = () => {
             onChange={onChangeHandler}
             name="state"
             value={formData.state}
-            className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+            className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
             type="text"
             placeholder="State"
           />
@@ -210,7 +210,7 @@ const PlaceOrder = () => {
           onChange={onChangeHandler}
           name="phone"
           value={formData.phone}
-          className="border border-gray-300 rounded py-1.5 px-3.5 w-full"
+          className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
           type="number"
           placeholder="Phone"
         />
@@ -239,7 +239,7 @@ const PlaceOrder = () => {
                 CASH ON DELIVERY
               </p>
             </div>
-            <div
+            {/* <div
               onClick={() => setMethod("stripe")}
               className="flex items-center gap-3 border p-2 px-3 cursor-pointer"
             >
@@ -249,14 +249,14 @@ const PlaceOrder = () => {
                 }`}
               ></p>
               <img className="h-5 mx-4" src={assets.stripe_logo} alt="" />
-            </div>
+            </div> */}
           </div>
 
           <div className="w-full text-end mt-8">
             <button
               disabled={isLoading}
               type="submit"
-              className="bg-gray-800 hover:bg-gray-900 duration-200 rounded-md text-white px-16 py-3 text-sm"
+              className="bg-gray-900 hover:bg-gray-800 duration-200 rounded-md text-white px-16 py-3 text-sm"
             >
               {isLoading ? (
                 <svg

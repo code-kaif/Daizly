@@ -17,8 +17,18 @@ import jacket from "./jacket.jpeg";
 import shirt from "./shirt.jpeg";
 import hoodie from "./hoodie.jpeg";
 import swetshirt from "./swtshirt.jpeg";
+import gal1 from "./gal1.webp";
+import gal2 from "./gal2.jpg";
+import gal3 from "./gal3.jpg";
+import gal4 from "./gal4.jpg";
+import frontview from "./front-view.jpg";
 
 export const assets = {
+  frontview,
+  gal1,
+  gal2,
+  gal3,
+  gal4,
   jacket,
   shirt,
   hoodie,

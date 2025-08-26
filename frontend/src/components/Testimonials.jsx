@@ -42,7 +42,7 @@ const Testimonials = () => {
         {testimonials.map((testimonial, index) => (
           <div
             key={index}
-            className="bg-gray-950 shadow-lg shadow-black/40 rounded-2xl p-6 text-center 
+            className="bg-[#005530] hover:bg-green-800 shadow-lg shadow-black/40 rounded-2xl p-6 text-center 
                        transition transform hover:scale-[1.03] hover:shadow-white/20 duration-300"
           >
             <img

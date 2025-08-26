@@ -40,7 +40,7 @@ const Cart = () => {
           <p className="text-xl mb-6">Cart is empty. Go for shopping!</p>
           <button
             onClick={() => navigate("/collection")}
-            className="px-6 py-3 bg-gray-700 text-white text-sm hover:bg-gray-900 transition rounded"
+            className="px-6 py-3 text-white text-sm bg-[#005530] hover:bg-green-800 transition rounded"
           >
             Shop Now
           </button>
@@ -77,7 +77,7 @@ const Cart = () => {
                       <div className="flex items-center gap-5 mt-2">
                         <p>
                           {currency}
-                          {productData.price}
+                          {productData.discount}
                         </p>
                         <p className="px-2 sm:px-3 sm:py-1 border bg-gray-900">
                           {item.size}
@@ -115,7 +115,7 @@ const Cart = () => {
               <div className="w-full text-end">
                 <button
                   onClick={() => navigate(token ? "/place-order" : "/login")}
-                  className="bg-gray-800 hover:bg-gray-900 text-white rounded-md text-sm my-8 px-8 py-3 font-medium"
+                  className="bg-[#005530] hover:bg-green-800 text-white rounded-md text-sm my-8 px-8 py-3 font-medium"
                 >
                   PROCEED TO CHECKOUT
                 </button>

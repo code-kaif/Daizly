@@ -17,13 +17,12 @@ const ProductItem = ({ id, image, name, discount }) => {
           <img
             src={image[0]}
             alt={name}
-            className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100 hover:opacity-0"
+            className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100 md:hover:opacity-0"
           />
-          {/* Second image (on hover) */}
           <img
             src={image[1]}
             alt={name}
-            className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-0 hover:opacity-100"
+            className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-0 md:hover:opacity-100"
           />
         </div>
       </div>

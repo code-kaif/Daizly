@@ -105,7 +105,7 @@ const Login = () => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-2 text-sm text-gray-400 hover:text-white"
+              className="absolute right-2 top-2 text-sm  text-gray-400 hover:text-white"
             >
               {showPassword ? "Hide" : "Show"}
             </button>
@@ -124,7 +124,7 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-md transition"
+            className="w-full py-2 bg-[#005530] hover:bg-green-800 text-white rounded-md transition"
           >
             {isLogin ? "Sign In" : "Sign Up"}
           </button>

@@ -43,13 +43,13 @@ const sendAdminOrderEmail = async (order) => {
     ${order.items
       .map(
         (item) =>
-          `<li>${item.name} - ₹${item.price} × ${item.quantity} (${item.size})</li>`
+          `<li>${item.name} - ₹${item.discount} × ${item.quantity} (${item.size})</li>`
       )
       .join("")}
   </ul>
 
   <div style="margin-top: 24px;">
-    <a href="https://admin.uniquevilla7.in/orders" target="_blank" style="
+    <a href="https://admin.daizly.in/orders" target="_blank" style="
       display: inline-block;
       background-color: #111827;
       color: #ffffff;

@@ -5,7 +5,8 @@ import BestSeller from "../components/BestSeller";
 import OurPolicy from "../components/OurPolicy";
 import Testimonials from "../components/Testimonials";
 import CategorySection from "../components/Categories";
-import GallerySection from "../components/Gallery";
+import { assets } from "../assets/assets";
+import Gallery from "../components/Gallery";
 
 const Home = () => {
   return (
@@ -13,7 +14,7 @@ const Home = () => {
       <Hero />
       <CategorySection />
       <BestSeller />
-      <GallerySection />
+      <Gallery />
       <OurPolicy />
       <Testimonials />
     </div>

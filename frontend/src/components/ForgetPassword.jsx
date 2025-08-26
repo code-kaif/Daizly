@@ -62,7 +62,7 @@ const ForgotPassword = () => {
           <button
             onClick={sendOtp}
             disabled={isLoading}
-            className="bg-gray-800 hover:bg-gray-700 duration-200 rounded-md text-white px-16 py-3 text-sm"
+            className="bg-[#005530] hover:bg-green-800 duration-200 rounded-md text-white px-16 py-3 text-sm"
           >
             {isLoading ? (
               <svg
@@ -108,7 +108,7 @@ const ForgotPassword = () => {
           />
           <button
             onClick={resetPassword}
-            className="bg-gray-800 hover:bg-gray-700 duration-200 rounded-md text-white px-16 py-3 text-sm"
+            className="bg-[#005530] hover:bg-green-800 duration-200 rounded-md text-white px-16 py-3 text-sm"
           >
             Reset Password
           </button>

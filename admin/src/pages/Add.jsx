@@ -221,7 +221,7 @@ const Add = ({ token }) => {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full sm:w-32 py-3 mt-4 bg-gray-700 hover:bg-gray-800 text-white rounded-md flex items-center justify-center"
+        className="w-full sm:w-32 py-3 mt-4 bg-[#005530] hover:bg-green-800 text-white rounded-md flex items-center justify-center"
       >
         {isLoading ? (
           <svg

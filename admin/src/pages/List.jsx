@@ -54,7 +54,7 @@ const List = ({ token }) => {
           <b>Image</b>
           <b>Name</b>
           <b>Category</b>
-          <b>Price</b>
+          <b>Discount Price</b>
           <b className="text-center">Action</b>
         </div>
 
@@ -70,7 +70,7 @@ const List = ({ token }) => {
             <p>{item.category}</p>
             <p>
               {currency}
-              {item.price}
+              {item.discount}
             </p>
             <p
               onClick={() => removeProduct(item._id)}

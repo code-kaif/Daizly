@@ -81,7 +81,7 @@ const Orders = () => {
           </p>
           <button
             onClick={() => navigate("/collection")}
-            className="mt-4 px-6 py-2 bg-gray-700 hover:bg-gray-900 text-white rounded-md hover:opacity-90 transition"
+            className="mt-4 px-6 py-2 bg-[#005530] hover:bg-green-800 text-white rounded-md hover:opacity-90 transition"
           >
             Shop Now
           </button>
@@ -99,7 +99,7 @@ const Orders = () => {
                 <div>
                   <p className="sm:text-base font-medium">{item.name}</p>
                   <div className="flex flex-wrap gap-3 mt-1 text-sm text-gray-200">
-                    <p>₹{item.price}</p>
+                    <p>₹{item.discount}</p>
                     <p>Qty: {item.quantity}</p>
                     <p>Size: {item.size}</p>
                   </div>
@@ -127,7 +127,7 @@ const Orders = () => {
                     return (
                       <div
                         key={idx}
-                        className="flex flex-col items-center relative flex-1"
+                        className="flex flex-col items-center relative flex-1 -z-0"
                       >
                         {/* Circle */}
                         <div

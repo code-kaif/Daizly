@@ -67,23 +67,13 @@ const Product = () => {
             {productData.name}
           </h1>
 
-          {/* Ratings */}
-          <div className="flex items-center gap-1 mb-3">
-            <img src={assets.star_icon} alt="" className="w-4" />
-            <img src={assets.star_icon} alt="" className="w-4" />
-            <img src={assets.star_icon} alt="" className="w-4" />
-            <img src={assets.star_icon} alt="" className="w-4" />
-            <img src={assets.star_dull_icon} alt="" className="w-4" />
-            <p className="pl-2 text-gray-200 text-sm">(122 reviews)</p>
-          </div>
-
           <div className="flex">
             <p className="text-3xl font-bold text-gray-200 mb-4 line-through mr-3">
               {currency}
               {productData.price}
             </p>
 
-            <p className="text-3xl font-bold text-green-800 mb-4">
+            <p className="text-3xl font-bold text-[#005530] mb-4">
               {currency}
               {productData.discount}
             </p>
@@ -104,7 +94,7 @@ const Product = () => {
                   onClick={() => setSize(item)}
                   className={`border py-2 px-5 rounded-lg transition ${
                     item === size
-                      ? "border-gray-800 bg-gray-800 text-white"
+                      ? "border-gray-800 bg-[#005530] text-white"
                       : "border-gray-300 bg-gray-100 hover:bg-gray-200"
                   }`}
                   key={index}
@@ -118,9 +108,9 @@ const Product = () => {
           {/* ✅ Add to Cart */}
           <button
             onClick={handleAddToCart}
-            className="bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg px-8 py-3 my-4 text-sm shadow-md transition"
+            className="bg-[#005530] hover:bg-green-800 text-white font-medium rounded-lg px-8 py-3 my-4 text-sm shadow-md transition"
           >
-            🛒 ADD TO CART
+            ADD TO CART
           </button>
 
           {/* ✅ Product Highlights */}

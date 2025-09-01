@@ -86,9 +86,14 @@ const Orders = ({ token }) => {
                     </p>
                   ))}
                 </div>
-                <p className="mt-3 mb-2 font-medium">
-                  {order.address.firstName} {order.address.lastName}
-                </p>
+                <div className="flex gap-2">
+                  <p className="mt-3 mb-2 font-medium">
+                    {order.address.firstName} {order.address.lastName}
+                  </p>
+                  <p className="mt-3 mb-2 font-medium">
+                    {order.address.instagramId}
+                  </p>
+                </div>
                 <div>
                   <p>
                     {order.address.houseNo}, {order.address.street}

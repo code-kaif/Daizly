@@ -20,17 +20,20 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ScrollToTop from "./components/ScrollToTop";
 import ReturnPolicy from "./pages/ReturnPolicy";
 import ShippingPolicy from "./pages/ShippingPolicy";
+import WhatsAppButton from "./components/WattsAppButton";
 
 const App = () => {
   return (
     <>
-      <div className="bg-black text-white text-center py-3">
-        USE DAIZLY20 TO GET 20% OFF (ONLY FOR PREPAID ORDERS)
+      <div className="fixed top-0 left-0 w-full z-50">
+        <div className="bg-black md:text-[16px] text-[12px] text-white text-center py-3">
+          USE DAIZLY20 TO GET 20% OFF (ONLY FOR PREPAID ORDERS)
+        </div>
+        <div className="bg-[#005530] px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+          <Navbar />
+        </div>
       </div>
-      <div className="bg-[#005530] px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
-        <Navbar />
-      </div>
-      <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] bg-black pt-5 md:pt-8">
+      <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] bg-black pt-[130px] md:pt-[150px]">
         <ToastContainer />
         <SearchBar />
         <ScrollToTop />
@@ -50,6 +53,7 @@ const App = () => {
           <Route path="/return-policy" element={<ReturnPolicy />} />
           <Route path="/shipping-policy" element={<ShippingPolicy />} />
         </Routes>
+        <WhatsAppButton />
         <Footer />
       </div>
     </>

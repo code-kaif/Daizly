@@ -100,7 +100,7 @@ const Navbar = () => {
 
       {/* Sidebar menu for small screens */}
       <div
-        className={`z-10 absolute top-0 right-0 bottom-0 overflow-hidden bg-[#0E0505] transition-all ${
+        className={`fixed top-0 right-0 bottom-0 z-[9999] overflow-hidden bg-[#0E0505] transition-all ${
           visible ? "w-full" : "w-0"
         }`}
       >

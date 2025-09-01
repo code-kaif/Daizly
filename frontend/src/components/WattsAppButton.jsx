@@ -5,7 +5,7 @@ export default function SocialButtons() {
     <div className="fixed bottom-5 right-5 flex flex-col gap-3 z-50">
       {/* WhatsApp */}
       <a
-        href="https://wa.me/919812345678" // ✅ replace with your number
+        href="https://wa.me/919315943603"
         target="_blank"
         rel="noopener noreferrer"
         className="bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-all duration-300"

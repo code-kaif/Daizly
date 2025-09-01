@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Upload } from "lucide-react";
 import axios from "axios";
 import { backendUrl } from "../App";
@@ -14,10 +14,64 @@ const Add = ({ token }) => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [discount, setDiscount] = useState("");
-  const [category, setCategory] = useState("Jacket");
+  const [category, setCategory] = useState("Choose Category");
   const [bestseller, setBestseller] = useState(false);
   const [sizes, setSizes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [stockStatus, setStockStatus] = useState("In stock");
+
+  const [categories, setCategories] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [categoryImage, setCategoryImage] = useState(null);
+  const [showManageModal, setShowManageModal] = useState(false);
+
+  const handleAddCategory = async () => {
+    if (!newCategory.trim()) return toast.error("Category name required");
+
+    try {
+      const formData = new FormData();
+      formData.append("name", newCategory);
+      if (categoryImage) formData.append("image", categoryImage);
+
+      const res = await axios.post(backendUrl + "/api/category/add", formData, {
+        headers: { token, "Content-Type": "multipart/form-data" },
+      });
+
+      if (res.data.success) {
+        setCategories([...categories, res.data.category]);
+        setCategory(res.data.category.name);
+        setNewCategory("");
+        setCategoryImage(null);
+        setShowModal(false);
+        toast.success("Category added");
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  const handleDeleteCategory = async (id) => {
+    try {
+      const res = await axios.delete(
+        backendUrl + "/api/category/delete/" + id,
+        { headers: { token } }
+      );
+
+      if (res.data.success) {
+        setCategories(categories.filter((c) => c._id !== id));
+        toast.success("Category deleted");
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to delete");
+    }
+  };
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -30,6 +84,7 @@ const Add = ({ token }) => {
       formData.append("price", price);
       formData.append("discount", discount);
       formData.append("category", category);
+      formData.append("stockStatus", stockStatus);
       formData.append("bestseller", bestseller);
       formData.append("sizes", JSON.stringify(sizes));
 
@@ -45,7 +100,7 @@ const Add = ({ token }) => {
       );
 
       if (response.data.success) {
-        toast.success(response.data.message);
+        toast.success("Product Added");
         setName("");
         setDescription("");
         setImage1(false);
@@ -67,6 +122,20 @@ const Add = ({ token }) => {
     }
   };
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(backendUrl + "/api/category/list");
+        if (res.data.success) {
+          setCategories(res.data.categories);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   return (
     <form
       onSubmit={onSubmitHandler}
@@ -83,14 +152,23 @@ const Add = ({ token }) => {
               className="w-full sm:w-20 h-24 sm:h-20 border border-gray-700 rounded-md flex items-center justify-center cursor-pointer bg-[#1A0E0E] hover:border-gray-500 transition"
             >
               {img ? (
-                <img
-                  className="w-full h-full object-cover rounded-md"
-                  src={URL.createObjectURL(img)}
-                  alt="preview"
-                />
+                img.type.startsWith("video/") ? (
+                  <video
+                    src={URL.createObjectURL(img)}
+                    className="w-full h-full object-cover rounded-md"
+                    controls
+                  />
+                ) : (
+                  <img
+                    className="w-full h-full object-cover rounded-md"
+                    src={URL.createObjectURL(img)}
+                    alt="preview"
+                  />
+                )
               ) : (
                 <Upload className="text-gray-400 w-6 h-6" />
               )}
+
               <input
                 onChange={(e) => {
                   const file = e.target.files[0];
@@ -100,6 +178,7 @@ const Add = ({ token }) => {
                   if (index === 3) setImage4(file);
                 }}
                 type="file"
+                accept="image/*,video/*" // ✅ allow images & videos
                 id={`image${index + 1}`}
                 hidden
               />
@@ -158,21 +237,148 @@ const Add = ({ token }) => {
         </div>
       </div>
 
-      {/* Category */}
+      {/* Category Section */}
       <div className="w-full">
         <p className="mb-2">Product category</p>
-        <select
-          onChange={(e) => setCategory(e.target.value)}
-          value={category}
-          className="w-full bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white"
-        >
-          <option value="Jacket">Jacket</option>
-          <option value="Shirt">Shirt</option>
-          <option value="T-Shirt">T-Shirt</option>
-          <option value="Hoodie">Hoodie</option>
-          <option value="Swetshirt">Swetshirt</option>
-        </select>
+        <div className="flex items-center gap-3">
+          <select
+            onChange={(e) => setCategory(e.target.value)}
+            value={category}
+            className="bg-[#1A0E0E] w-full border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white"
+          >
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        {/* ✅ Add and Manage Category buttons */}
+        <div className="flex items-center mt-3">
+          <button
+            type="button"
+            onClick={() => setShowModal(true)}
+            className="px-3 py-2 bg-green-900 hover:bg-green-950 duration-200 rounded-md text-sm"
+          >
+            + Add Category
+          </button>
+          <button
+            onClick={() => setShowManageModal(true)}
+            className="px-3 py-2 bg-blue-900 hover:bg-blue-950 rounded-md ml-2"
+          >
+            Manage Categories
+          </button>
+        </div>
       </div>
+
+      {/* ✅ Category Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#1A0E0E] p-6 rounded-lg w-80">
+            <h2 className="text-lg mb-4">Add New Category</h2>
+
+            {/* Category Name */}
+            <input
+              type="text"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              placeholder="Enter category name"
+              className="w-full bg-[#0E0505] border border-gray-700 px-3 py-2 rounded-md text-white mb-4"
+            />
+
+            {/* ✅ Upload Image */}
+            <div className="mb-4">
+              <p className="mb-2 text-sm">Upload Category Image</p>
+              <label
+                htmlFor="categoryImage"
+                className="w-full h-24 border border-gray-700 rounded-md flex items-center justify-center cursor-pointer bg-[#1A0E0E] hover:border-gray-500 transition"
+              >
+                {categoryImage ? (
+                  <img
+                    src={URL.createObjectURL(categoryImage)}
+                    alt="preview"
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                ) : (
+                  <Upload className="text-gray-400 w-6 h-6" />
+                )}
+                <input
+                  type="file"
+                  id="categoryImage"
+                  hidden
+                  onChange={(e) => setCategoryImage(e.target.files[0])}
+                />
+              </label>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-3 py-2 bg-gray-800 rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddCategory}
+                className="px-3 py-2 bg-green-900 hover:bg-green-950 rounded-md"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Manage Categories Modal */}
+      {showManageModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#1A0E0E] p-6 rounded-lg w-96 max-h-[80vh] overflow-y-auto">
+            <h2 className="text-lg mb-4">Manage Categories</h2>
+
+            {/* Categories List */}
+            {categories.length > 0 ? (
+              <ul className="space-y-3">
+                {categories.map((cat) => (
+                  <li
+                    key={cat._id}
+                    className="flex items-center justify-between bg-[#0E0505] px-3 py-2 rounded-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      {cat.image && (
+                        <img
+                          src={cat.image} // ✅ Fixed here
+                          alt={cat.name}
+                          className="w-10 h-10 object-cover rounded"
+                        />
+                      )}
+                      <span>{cat.name}</span>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteCategory(cat._id)}
+                      className="px-2 py-1 bg-red-800 hover:bg-red-900 rounded-md text-sm"
+                    >
+                      Delete
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-400">No categories available.</p>
+            )}
+
+            {/* Close Button */}
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setShowManageModal(false)}
+                className="px-3 py-2 bg-gray-800 rounded-md"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sizes */}
       <div className="w-full">
@@ -199,6 +405,27 @@ const Add = ({ token }) => {
                 {size}
               </p>
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Stock Status */}
+      <div className="w-full">
+        <p className="mb-2">Stock Status</p>
+        <div className="flex gap-3">
+          {["In stock", "Out of stock", "Coming soon"].map((status) => (
+            <button
+              type="button"
+              key={status}
+              onClick={() => setStockStatus(status)}
+              className={`px-4 py-2 rounded-md ${
+                stockStatus === status
+                  ? "bg-green-700 text-white"
+                  : "bg-[#1A0E0E] border border-gray-700 text-gray-400 hover:border-gray-500"
+              }`}
+            >
+              {status}
+            </button>
           ))}
         </div>
       </div>

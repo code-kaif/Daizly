@@ -10,6 +10,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Export from "./pages/Export";
 import Cancel from "./pages/Cancel";
+import EditProduct from "./components/EditProduct"; // <-- import edit page
+import Coupon from "./pages/Coupon";
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const currency = "₹";
@@ -42,6 +44,12 @@ const App = () => {
                 <Route path="/orders" element={<Orders token={token} />} />
                 <Route path="/exports" element={<Export token={token} />} />
                 <Route path="/cancel" element={<Cancel token={token} />} />
+                <Route path="/coupon" element={<Coupon token={token} />} />
+                <Route
+                  path="/edit/:id"
+                  element={<EditProduct token={token} />}
+                />
+                {/* 👆 New edit product route */}
               </Routes>
             </div>
           </div>

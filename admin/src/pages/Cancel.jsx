@@ -46,6 +46,7 @@ const Cancel = ({ token }) => {
                   <strong>Name:</strong>{" "}
                   {order.address.firstName + " " + order.address.lastName}
                 </p>
+
                 <p>
                   <strong>Mobile:</strong> {order.address.phone}
                 </p>
@@ -72,11 +73,22 @@ const Cancel = ({ token }) => {
                     className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-4"
                   >
                     <div className="flex items-start gap-4 text-sm w-full md:w-1/2">
-                      <img
-                        src={item.image[0]}
-                        alt={item.name}
-                        className="w-16 h-16 object-cover rounded"
-                      />
+                      {item.image[0]?.match(/\.(mp4|webm|ogg)$/i) ? (
+                        <video
+                          src={item.image[0]}
+                          className="w-12 h-12 object-cover rounded"
+                          muted
+                          autoPlay
+                          loop
+                        />
+                      ) : (
+                        <img
+                          src={item.image[0]}
+                          alt={item.name}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                      )}
+
                       <div>
                         <p className="font-medium text-gray-200">{item.name}</p>
                         <p className="text-sm text-gray-200 mt-1">

@@ -9,6 +9,9 @@ import { toast } from "react-toastify";
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
   const [isLoading, setIsLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [finalAmount, setFinalAmount] = useState(0);
+
   const {
     navigate,
     backendUrl,
@@ -19,6 +22,7 @@ const PlaceOrder = () => {
     delivery_fee,
     products,
   } = useContext(ShopContext);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -30,6 +34,7 @@ const PlaceOrder = () => {
     state: "",
     zipcode: "",
     phone: "",
+    instagramId: "",
   });
 
   const onChangeHandler = (event) => {
@@ -38,12 +43,64 @@ const PlaceOrder = () => {
     setFormData((data) => ({ ...data, [name]: value }));
   };
 
+  // ✅ Razorpay init with finalAmount
+  const initPay = (order, orderItems, finalAmount, appliedCoupon) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: order.currency,
+      name: "Order Payment",
+      description: "Order Payment",
+      order_id: order.id,
+      handler: async (response) => {
+        try {
+          const payload = {
+            ...response, // razorpay_order_id, razorpay_payment_id, signature
+            items: orderItems,
+            address: formData,
+            amount: finalAmount,
+            coupon: appliedCoupon || null,
+          };
+
+          const { data } = await axios.post(
+            backendUrl + "/api/order/verifyRazorpay",
+            payload,
+            { headers: { token } }
+          );
+
+          if (data.success) {
+            toast.success("Order placed successfully!");
+            navigate("/orders");
+            setCartItems({});
+          } else {
+            toast.error(data.message);
+          }
+        } catch (error) {
+          console.error(error);
+          toast.error(error.message);
+        }
+      },
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
   const onSubmitHandler = async (event) => {
     event.preventDefault();
     setIsLoading(true);
+
     try {
       let orderItems = [];
 
+      let subtotal = getCartAmount();
+      let discountPercent =
+        appliedCoupon?.discountPercent ?? appliedCoupon?.percentage ?? 0;
+      let discount = appliedCoupon
+        ? (subtotal * Number(discountPercent)) / 100
+        : 0;
+      let finalAmount = subtotal - discount + delivery_fee;
+
+      // collect cart items
       for (const items in cartItems) {
         for (const item in cartItems[items]) {
           if (cartItems[items][item] > 0) {
@@ -62,45 +119,51 @@ const PlaceOrder = () => {
       let orderData = {
         address: formData,
         items: orderItems,
-        amount: getCartAmount() + delivery_fee,
+        amount: finalAmount,
+        coupon: appliedCoupon || null,
       };
 
-      switch (method) {
-        // API Calls for COD
-        case "cod":
-          const response = await axios.post(
-            backendUrl + "/api/order/place",
-            orderData,
-            { headers: { token } }
-          );
-          if (response.data.success) {
-            setCartItems({});
-            toast.success(response.data.message);
-            navigate("/orders");
-          } else {
-            toast.error(response.data.message);
-          }
-          break;
+      if (method === "cod") {
+        // 🚫 restrict coupon for COD
+        if (appliedCoupon) {
+          toast.error("Coupons are only valid for prepaid orders");
+          setIsLoading(false);
+          return;
+        }
 
-        case "stripe":
-          const responseStripe = await axios.post(
-            backendUrl + "/api/order/stripe",
-            orderData,
-            { headers: { token } }
-          );
-          if (responseStripe.data.success) {
-            const { session_url } = responseStripe.data;
-            window.location.replace(session_url);
-          } else {
-            toast.error(responseStripe.data.message);
-          }
-          break;
+        const response = await axios.post(
+          backendUrl + "/api/order/place",
+          orderData,
+          { headers: { token } }
+        );
 
-        default:
-          break;
+        if (response.data.success) {
+          setCartItems({});
+          toast.success(response.data.message);
+          navigate("/orders");
+        } else {
+          toast.error(response.data.message);
+        }
+      }
+
+      if (method === "razorpay") {
+        const responseRazorpay = await axios.post(
+          backendUrl + "/api/order/razorpay",
+          { amount: finalAmount }, // ✅ only send amount here
+          { headers: { token } }
+        );
+
+        if (responseRazorpay.data.success) {
+          initPay(
+            responseRazorpay.data.order,
+            orderItems,
+            finalAmount,
+            appliedCoupon
+          );
+        }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error(error.message);
     } finally {
       setIsLoading(false);
@@ -214,17 +277,36 @@ const PlaceOrder = () => {
           type="number"
           placeholder="Phone"
         />
+        <div className>
+          <p className="text-white my-2">
+            Add instagramId for your NFC Tag. (Optional)
+          </p>
+          <input
+            onChange={onChangeHandler}
+            name="instagramId"
+            value={formData.instagramId}
+            className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
+            type="text"
+            placeholder="Instagram Id"
+          />
+        </div>
       </div>
 
       {/* ------------- Right Side ------------------ */}
       <div className="mt-8">
         <div className="mt-8 min-w-80">
-          <CartTotal />
+          <CartTotal
+            onFinalAmountChange={(amount, coupon) => {
+              setFinalAmount(amount);
+              setAppliedCoupon(coupon);
+            }}
+            showInput={true}
+          />
         </div>
 
         <div className="mt-12">
           <Title text1={"PAYMENT"} text2={"METHOD"} />
-          {/* --------------- Payment Method Selection ------------- */}
+          {/* Payment Methods */}
           <div className="flex gap-3 flex-col lg:flex-row">
             <div
               onClick={() => setMethod("cod")}
@@ -239,17 +321,17 @@ const PlaceOrder = () => {
                 CASH ON DELIVERY
               </p>
             </div>
-            {/* <div
-              onClick={() => setMethod("stripe")}
+            <div
+              onClick={() => setMethod("razorpay")}
               className="flex items-center gap-3 border p-2 px-3 cursor-pointer"
             >
               <p
                 className={`min-w-3.5 h-3.5 border rounded-full ${
-                  method === "stripe" ? "bg-green-400" : ""
+                  method === "razorpay" ? "bg-green-400" : ""
                 }`}
               ></p>
-              <img className="h-5 mx-4" src={assets.stripe_logo} alt="" />
-            </div> */}
+              <img className="h-5 mx-4" src={assets.razorpay_logo} alt="" />
+            </div>
           </div>
 
           <div className="w-full text-end mt-8">

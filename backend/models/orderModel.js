@@ -10,6 +10,8 @@ const orderSchema = new mongoose.Schema({
   payment: { type: Boolean, required: true, default: false },
   date: { type: Number, required: true },
   orderCancelled: { type: Boolean, required: true, default: false },
+  shiprocketOrderId: { type: Number },
+  shiprocketShipmentId: { type: Number },
 });
 
 const orderModel =

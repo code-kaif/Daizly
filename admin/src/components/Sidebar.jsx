@@ -5,6 +5,7 @@ import { LuClipboardList } from "react-icons/lu";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { BsBox } from "react-icons/bs";
 import { HiOutlineArchiveBoxXMark } from "react-icons/hi2";
+import { RiCoupon3Line } from "react-icons/ri";
 
 const Sidebar = () => {
   return (
@@ -56,6 +57,18 @@ const Sidebar = () => {
         >
           <HiOutlineArchiveBoxXMark size={24} />
           <p className="hidden md:block">Cancel</p>
+        </NavLink>
+
+        <NavLink
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-3 py-2 rounded-l-md transition-all duration-200 ${
+              isActive ? "bg-white text-[#0E0505]" : "hover:bg-[#1a0a0a]"
+            }`
+          }
+          to="/coupon"
+        >
+          <RiCoupon3Line size={24} />
+          <p className="hidden md:block">Coupon</p>
         </NavLink>
 
         <NavLink

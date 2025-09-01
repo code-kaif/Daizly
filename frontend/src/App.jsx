@@ -24,10 +24,13 @@ import ShippingPolicy from "./pages/ShippingPolicy";
 const App = () => {
   return (
     <>
+      <div className="bg-black text-white text-center py-3">
+        USE DAIZLY20 TO GET 20% OFF (ONLY FOR PREPAID ORDERS)
+      </div>
       <div className="bg-[#005530] px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
         <Navbar />
       </div>
-      <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] bg-[#0E0505]">
+      <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] bg-black pt-5 md:pt-8">
         <ToastContainer />
         <SearchBar />
         <ScrollToTop />

@@ -1,11 +1,9 @@
 import logo from "./logo1.png";
 import star_dull_icon from "./star_dull_icon.png";
 import star_icon from "./star_icon.png";
-import about_img from "./about_img.png";
 import contact_img from "./contact_img.png";
 import razorpay_logo from "./razorpay_logo.png";
 import stripe_logo from "./stripe_logo.png";
-import about from "./about.webp";
 import irfan from "./irfan.jpg";
 import kuldeep from "./kuldeep.jpg";
 import kaif from "./kaif.jpg";
@@ -13,10 +11,10 @@ import tag from "./tag-closeup.jpg";
 import gallery1 from "./gallery1.jpg";
 import gallery2 from "./gallery2.jpg";
 import gallery3 from "./gallery3.jpg";
-import jacket from "./jacket.jpeg";
-import shirt from "./shirt.jpeg";
-import hoodie from "./hoodie.jpeg";
-import swetshirt from "./swtshirt.jpeg";
+import jacket from "./jacket.jpg";
+import shirt from "./shirt.jpg";
+import hoodie from "./hoodie.jpg";
+import swetshirt from "./swtshirt.jpg";
 import gal1 from "./gal1.webp";
 import gal2 from "./gal2.jpg";
 import gal3 from "./gal3.jpg";
@@ -37,10 +35,8 @@ export const assets = {
   tag,
   irfan,
   kaif,
-  about,
   star_dull_icon,
   star_icon,
-  about_img,
   contact_img,
   razorpay_logo,
   stripe_logo,

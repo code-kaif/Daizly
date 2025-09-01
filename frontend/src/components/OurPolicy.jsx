@@ -5,7 +5,7 @@ import { MdCurrencyRupee } from "react-icons/md";
 
 const OurPolicy = () => {
   return (
-    <div className="my-20 bg-[#0E0505] text-white">
+    <div className="my-20 bg-black text-white">
       {/* Section Title */}
       <div className="text-3xl text-center py-10">
         <Title text1={"Why to"} text2={"choose us"} />

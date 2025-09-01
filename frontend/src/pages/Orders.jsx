@@ -3,6 +3,7 @@ import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Orders = () => {
   const { backendUrl, token, currency } = useContext(ShopContext);
@@ -12,6 +13,7 @@ const Orders = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  // 📌 Load Orders
   const loadOrderData = async () => {
     try {
       if (!token) return;
@@ -24,7 +26,7 @@ const Orders = () => {
 
       if (response.data.success) {
         let allOrdersItem = [];
-        response.data.orders.map((order) => {
+        response.data.orders.forEach((order) => {
           if (!(order.status === "Cancelled" && order.orderCancelled)) {
             order.items.forEach((item) => {
               item["_id"] = order._id;
@@ -32,6 +34,8 @@ const Orders = () => {
               item["payment"] = order.payment;
               item["paymentMethod"] = order.paymentMethod;
               item["date"] = order.date;
+              // Inside loadOrderData -> when pushing items:
+              item["trackingSteps"] = order.trackingSteps || [];
               order["orderCancelled"] && (item["cancelled"] = true);
               allOrdersItem.push(item);
             });
@@ -39,12 +43,41 @@ const Orders = () => {
         });
 
         setorderData(allOrdersItem.reverse());
+
+        // 🔹 Auto-fetch Shiprocket tracking for all orders
+        const orderIds = response.data.orders.map((o) => o._id);
+        fetchBulkTracking(orderIds);
       }
     } catch (error) {
       console.error("Error loading orders:", error);
     }
   };
 
+  const fetchBulkTracking = async (orderIds) => {
+    try {
+      const response = await axios.get(
+        backendUrl + "/api/order/track-all",
+        { orderIds },
+        { headers: { token } }
+      );
+
+      if (response.data.success) {
+        const tracking = response.data.tracking;
+
+        setorderData((prev) =>
+          prev.map((item) =>
+            tracking[item._id]
+              ? { ...item, trackingSteps: tracking[item._id] }
+              : item
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Bulk tracking error:", error);
+    }
+  };
+
+  // 📌 Cancel Order
   const handleCancelOrder = async () => {
     setIsLoading(true);
     try {
@@ -113,56 +146,34 @@ const Orders = () => {
               </div>
 
               {/* Tracking Progress */}
-              <div className="flex items-center justify-between px-4 w-full">
-                {(() => {
-                  const steps = [
-                    "Order Placed",
-                    "Out for delivery",
-                    "Delivered",
-                  ];
-                  const currentStep = steps.indexOf(item.status);
-
-                  return steps.map((step, idx) => {
-                    const isCompleted = idx <= currentStep;
-                    return (
-                      <div
-                        key={idx}
-                        className="flex flex-col items-center relative flex-1 -z-0"
-                      >
-                        {/* Circle */}
-                        <div
-                          className={`w-5 h-5 rounded-full z-10 border-2 flex items-center justify-center text-white text-[10px] font-bold
-              ${
-                isCompleted
-                  ? "bg-green-500 border-green-500"
-                  : "bg-gray-700 border-gray-500"
-              }
-            `}
-                        >
-                          {isCompleted ? "✓" : ""}
-                        </div>
-
-                        {/* Step text */}
-                        <p
-                          className={`text-[11px] sm:text-xs mt-1 text-center 
-              ${isCompleted ? "text-green-400 font-semibold" : "text-gray-200"}
-            `}
-                        >
-                          {step}
-                        </p>
-
-                        {/* Connecting line */}
-                        {idx < steps.length - 1 && (
-                          <div
-                            className={`absolute top-2.5 left-1/2 right-[-50%] h-[2px] 
-                ${currentStep > idx ? "bg-green-500" : "bg-gray-600"}
-              `}
-                          ></div>
-                        )}
-                      </div>
-                    );
-                  });
-                })()}
+              <div className="flex flex-col gap-2 px-4">
+                {item.trackingSteps && item.trackingSteps.length > 0 ? (
+                  item.trackingSteps.map((step, idx) => (
+                    <div
+                      key={idx}
+                      className={`flex items-center gap-2 text-sm ${
+                        step.current_status === "Delivered"
+                          ? "text-green-400"
+                          : "text-gray-200"
+                      }`}
+                    >
+                      <span
+                        className={`w-3 h-3 rounded-full ${
+                          step.current_status === "Delivered"
+                            ? "bg-green-500"
+                            : "bg-gray-500"
+                        }`}
+                      ></span>
+                      <p>
+                        {step.current_status} - {step.status_date}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-sm">
+                    Tracking not available yet
+                  </p>
+                )}
               </div>
 
               {/* Cancel Button */}

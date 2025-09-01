@@ -16,7 +16,6 @@ const Home = () => {
       <BestSeller />
       <Gallery />
       <OurPolicy />
-      <Testimonials />
     </div>
   );
 };

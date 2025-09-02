@@ -220,34 +220,69 @@ const updateStatus = async (req, res) => {
   }
 };
 
+// Add debug logging to identify issues
 const BulkTrackOrders = async (req, res) => {
   try {
     const { orderIds } = req.body;
-    console.log(orderIds);
+    console.log("Tracking order IDs:", orderIds);
 
     if (!orderIds || !Array.isArray(orderIds)) {
       return res.json({ success: false, message: "orderIds required" });
     }
 
-    // 🔹 Cast to ObjectId
     const objectIds = orderIds.map((id) => new mongoose.Types.ObjectId(id));
 
+    // Find orders that are NOT cancelled and have shipment IDs
     const orders = await orderModel.find({
       _id: { $in: objectIds },
       shiprocketShipmentId: { $exists: true, $ne: null },
+      orderCancelled: { $ne: true }, // Exclude cancelled orders
+      status: { $ne: "Cancelled" }, // Double check status field too
     });
+
+    console.log(
+      "Valid orders for tracking:",
+      orders.map((o) => ({
+        _id: o._id,
+        shipmentId: o.shiprocketShipmentId,
+        status: o.status,
+        cancelled: o.orderCancelled,
+      }))
+    );
 
     let trackingResults = {};
     for (const order of orders) {
       try {
+        // Skip if order is cancelled (additional safety check)
+        if (order.orderCancelled || order.status === "Cancelled") {
+          console.log(`Skipping cancelled order: ${order._id}`);
+          trackingResults[order._id] = [];
+          continue;
+        }
+
+        console.log(
+          `Fetching tracking for shipment: ${order.shiprocketShipmentId}`
+        );
         const tracking = await getShiprocketTracking(
           order.shiprocketShipmentId
         );
+        console.log(
+          `Tracking result for ${order.shiprocketShipmentId}:`,
+          tracking
+        );
         trackingResults[order._id] = tracking;
       } catch (err) {
+        console.error(`Tracking error for ${order.shiprocketShipmentId}:`, err);
         trackingResults[order._id] = [];
       }
     }
+
+    // For cancelled orders that were requested but filtered out, return empty array
+    orderIds.forEach((id) => {
+      if (!trackingResults[id]) {
+        trackingResults[id] = [];
+      }
+    });
 
     res.json({ success: true, tracking: trackingResults });
   } catch (error) {

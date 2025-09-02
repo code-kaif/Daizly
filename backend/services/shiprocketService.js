@@ -182,21 +182,113 @@ export async function cancelShiprocketOrder(shiprocketOrderId) {
   }
 }
 
+// shiprocket tracking api - FIXED
 export async function getShiprocketTracking(shipmentId) {
   await ensureLogin();
-  const { data } = await axios.get(
-    `https://apiv2.shiprocket.in/v1/external/courier/track/shipment/${shipmentId}`,
-    { headers: { Authorization: `Bearer ${shiprocketToken}` } }
-  );
+  try {
+    const { data } = await axios.get(
+      `https://apiv2.shiprocket.in/v1/external/courier/track/shipment/${shipmentId}`,
+      { headers: { Authorization: `Bearer ${shiprocketToken}` } }
+    );
 
-  // return only status + date
-  const track = data?.tracking_data;
-  return track
-    ? [
+    console.log("Shiprocket API Response:", JSON.stringify(data, null, 2));
+
+    // Extract the specific shipment data
+    const shipmentData = data[shipmentId] || data;
+    const track = shipmentData?.tracking_data;
+
+    if (!track) {
+      return [];
+    }
+
+    // Check for "no activities found" error
+    if (track.error && track.error.includes("no activities found")) {
+      return [
+        {
+          current_status: "Awaiting Tracking Update",
+          status_date: new Date().toLocaleString(),
+          message: "Tracking information will be available soon",
+        },
+      ];
+    }
+
+    // Check if track_status is 0 (no tracking data)
+    if (track.track_status === 0 || track.shipment_status === 0) {
+      return [
+        {
+          current_status: "Shipment Created",
+          status_date: new Date().toLocaleString(),
+          message: "Awaiting first tracking update from courier",
+        },
+      ];
+    }
+
+    // Check if shipment is cancelled
+    if (
+      track.shipment_status === "Cancelled" ||
+      track.shipment_status?.includes("Cancel")
+    ) {
+      return [
+        {
+          current_status: "Cancelled",
+          status_date: track.updated_at || new Date().toLocaleString(),
+          location: track.consignee_detail?.city || "",
+        },
+      ];
+    }
+
+    // Return all tracking events if available
+    if (
+      track?.shipment_track &&
+      Array.isArray(track.shipment_track) &&
+      track.shipment_track.length > 0
+    ) {
+      const validEvents = track.shipment_track.filter(
+        (event) => event.current_status && event.current_status.trim() !== ""
+      );
+
+      if (validEvents.length > 0) {
+        return validEvents.map((event) => ({
+          current_status: event.current_status,
+          status_date:
+            event.status_date ||
+            event.updated_time_stamp ||
+            new Date().toLocaleString(),
+          location: event.current_location || event.destination || "",
+          consignee: event.consignee_name || event.delivered_to || "",
+        }));
+      }
+    }
+
+    // Fallback to basic status if available
+    if (track.shipment_status && track.shipment_status !== 0) {
+      return [
         {
           current_status: track.shipment_status,
-          status_date: track.track_url ? new Date().toLocaleString() : "",
+          status_date: track.updated_at || new Date().toLocaleString(),
         },
-      ]
-    : [];
+      ];
+    }
+
+    // Default response when no tracking data is available yet
+    return [
+      {
+        current_status: "Processing",
+        status_date: new Date().toLocaleString(),
+        message: "Tracking information is being updated",
+      },
+    ];
+  } catch (error) {
+    console.error(
+      "Shiprocket tracking error:",
+      error.response?.data || error.message
+    );
+    return [
+      {
+        current_status: "Tracking Error",
+        status_date: new Date().toLocaleString(),
+        message: "Unable to fetch tracking information",
+      },
+    ];
+  }
 }

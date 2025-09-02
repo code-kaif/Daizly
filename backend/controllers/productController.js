@@ -67,27 +67,51 @@ export const updateProduct = async (req, res) => {
       category,
       sizes,
       bestseller,
-      stockStatus, // ✅ new field
+      stockStatus,
     } = req.body;
 
-    // Handle new images if uploaded
+    // Get the existing product first
+    const existingProduct = await productModel.findById(id);
+    if (!existingProduct) {
+      return res.json({ success: false, message: "Product not found" });
+    }
+
+    // Handle new images if uploaded - but don't replace all images
     const image1 = req.files?.image1 && req.files.image1[0];
     const image2 = req.files?.image2 && req.files.image2[0];
     const image3 = req.files?.image3 && req.files.image3[0];
     const image4 = req.files?.image4 && req.files.image4[0];
 
-    const images = [image1, image2, image3, image4].filter(Boolean);
+    // Start with existing images
+    let updatedImages = [...existingProduct.image];
 
-    let imagesUrl = [];
-    if (images.length > 0) {
-      imagesUrl = await Promise.all(
-        images.map(async (item) => {
-          let result = await cloudinary.uploader.upload(item.path, {
-            resource_type: "auto",
-          });
-          return result.secure_url;
-        })
-      );
+    // Upload new images and replace specific positions
+    if (image1) {
+      const result = await cloudinary.uploader.upload(image1.path, {
+        resource_type: "auto",
+      });
+      updatedImages[0] = result.secure_url;
+    }
+
+    if (image2) {
+      const result = await cloudinary.uploader.upload(image2.path, {
+        resource_type: "auto",
+      });
+      updatedImages[1] = result.secure_url;
+    }
+
+    if (image3) {
+      const result = await cloudinary.uploader.upload(image3.path, {
+        resource_type: "auto",
+      });
+      updatedImages[2] = result.secure_url;
+    }
+
+    if (image4) {
+      const result = await cloudinary.uploader.upload(image4.path, {
+        resource_type: "auto",
+      });
+      updatedImages[3] = result.secure_url;
     }
 
     // Prepare update object
@@ -101,8 +125,8 @@ export const updateProduct = async (req, res) => {
       ...(typeof bestseller !== "undefined" && {
         bestseller: bestseller === "true",
       }),
-      ...(typeof stockStatus !== "undefined" && { stockStatus }), // ✅ include if provided
-      ...(imagesUrl.length > 0 && { image: imagesUrl }),
+      ...(typeof stockStatus !== "undefined" && { stockStatus }),
+      image: updatedImages, // Always include the merged image array
     };
 
     const updatedProduct = await productModel.findByIdAndUpdate(
@@ -110,10 +134,6 @@ export const updateProduct = async (req, res) => {
       updateData,
       { new: true }
     );
-
-    if (!updatedProduct) {
-      return res.json({ success: false, message: "Product not found" });
-    }
 
     res.json({
       success: true,

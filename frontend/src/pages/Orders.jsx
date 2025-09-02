@@ -144,35 +144,59 @@ const Orders = () => {
                   </p>
                 </div>
               </div>
-
               {/* Tracking Progress */}
               <div className="flex flex-col gap-2 px-4">
-                {item.trackingSteps && item.trackingSteps.length > 0 ? (
+                {item.orderCancelled || item.status === "Cancelled" ? (
+                  <div className="flex items-center gap-2 text-sm text-red-400">
+                    <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                    <p>Order Cancelled - Tracking not available</p>
+                  </div>
+                ) : item.trackingSteps && item.trackingSteps.length > 0 ? (
                   item.trackingSteps.map((step, idx) => (
                     <div
                       key={idx}
                       className={`flex items-center gap-2 text-sm ${
                         step.current_status === "Delivered"
                           ? "text-green-400"
-                          : "text-gray-200"
+                          : step.current_status === "Cancelled" ||
+                            step.current_status.includes("Failed")
+                          ? "text-red-400"
+                          : step.current_status ===
+                              "Awaiting Tracking Update" ||
+                            step.current_status === "Processing"
+                          ? "text-yellow-400"
+                          : "text-blue-200"
                       }`}
                     >
                       <span
                         className={`w-3 h-3 rounded-full ${
                           step.current_status === "Delivered"
                             ? "bg-green-500"
-                            : "bg-gray-500"
+                            : step.current_status === "Cancelled" ||
+                              step.current_status.includes("Failed")
+                            ? "bg-red-500"
+                            : step.current_status ===
+                                "Awaiting Tracking Update" ||
+                              step.current_status === "Processing"
+                            ? "bg-yellow-500"
+                            : "bg-blue-500"
                         }`}
                       ></span>
-                      <p>
-                        {step.current_status} - {step.status_date}
-                      </p>
+                      <div>
+                        <p className="font-medium">{step.current_status}</p>
+                        <p className="text-xs text-gray-400">
+                          {step.status_date}
+                          {step.location && ` - ${step.location}`}
+                          {step.message && ` (${step.message})`}
+                        </p>
+                      </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-400 text-sm">
-                    Tracking not available yet
-                  </p>
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <span className="w-3 h-3 rounded-full bg-gray-500"></span>
+                    <p>Tracking not available yet</p>
+                  </div>
                 )}
               </div>
 

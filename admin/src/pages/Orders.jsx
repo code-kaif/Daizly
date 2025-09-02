@@ -7,6 +7,7 @@ import { assets } from "../assets/assets";
 const Orders = ({ token }) => {
   const [orders, setOrders] = useState([]);
 
+  // FIXED admin api call
   const fetchAllOrders = async () => {
     if (!token) return;
 
@@ -20,7 +21,8 @@ const Orders = ({ token }) => {
       if (response.data.success) {
         let ordersData = response.data.orders.reverse();
 
-        const trackRes = await axios.get(
+        // FIX: Use POST method with proper request body
+        const trackRes = await axios.post(
           backendUrl + "/api/order/track-all",
           { orderIds: ordersData.map((o) => o._id) },
           { headers: { token } }
@@ -119,18 +121,55 @@ const Orders = ({ token }) => {
                 {order.amount}
               </p>
 
-              <div className="mt-2">
+              <div>
                 <h4 className="font-semibold">Tracking:</h4>
-                {order.trackingSteps && order.trackingSteps.length > 0 ? (
+                {order.orderCancelled || order.status === "Cancelled" ? (
+                  <div className="flex items-center gap-2 text-xs text-red-400">
+                    <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                    <p>Order Cancelled - Tracking not available</p>
+                  </div>
+                ) : order.trackingSteps && order.trackingSteps.length > 0 ? (
                   order.trackingSteps.map((step, idx) => (
-                    <p key={idx} className="text-xs">
-                      {step.current_status} – {step.status_date}
-                    </p>
+                    <div
+                      key={idx}
+                      className={`flex items-center gap-2 text-xs ${
+                        step.current_status === "Delivered"
+                          ? "text-green-400"
+                          : step.current_status === "Cancelled" ||
+                            step.current_status.includes("Failed")
+                          ? "text-red-400"
+                          : step.current_status ===
+                              "Awaiting Tracking Update" ||
+                            step.current_status === "Processing"
+                          ? "text-yellow-400"
+                          : "text-blue-200"
+                      }`}
+                    >
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          step.current_status === "Delivered"
+                            ? "bg-green-500"
+                            : step.current_status === "Cancelled" ||
+                              step.current_status.includes("Failed")
+                            ? "bg-red-500"
+                            : step.current_status ===
+                                "Awaiting Tracking Update" ||
+                              step.current_status === "Processing"
+                            ? "bg-yellow-500"
+                            : "bg-blue-500"
+                        }`}
+                      ></span>
+                      <p>
+                        {step.current_status} – {step.status_date}
+                        {step.message && ` (${step.message})`}
+                      </p>
+                    </div>
                   ))
                 ) : (
-                  <p className="text-xs text-gray-400">
-                    Tracking not available
-                  </p>
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+                    <p>Tracking not available yet</p>
+                  </div>
                 )}
               </div>
             </div>

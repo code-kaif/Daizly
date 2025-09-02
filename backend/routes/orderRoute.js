@@ -20,7 +20,7 @@ const orderRouter = express.Router();
 orderRouter.post("/list", adminAuth, allOrders);
 orderRouter.post("/status", adminAuth, updateStatus);
 orderRouter.post("/track", authUser, BulkTrackOrders);
-orderRouter.get("/track-all", adminAuth, BulkTrackOrders);
+orderRouter.post("/track-all", adminAuth, BulkTrackOrders); // Changed from GET to POST
 orderRouter.get("/export", adminAuth, exportOrdersCsv);
 // orderRouter.get("/export-monthly", adminAuth, exportMonthlyOrders);
 

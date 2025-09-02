@@ -1,4 +1,4 @@
-import logo from "./logo1.png";
+import logo from "./logo.png";
 import star_dull_icon from "./star_dull_icon.png";
 import star_icon from "./star_icon.png";
 import contact_img from "./contact_img.png";

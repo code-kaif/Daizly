@@ -55,8 +55,8 @@ const Orders = () => {
 
   const fetchBulkTracking = async (orderIds) => {
     try {
-      const response = await axios.get(
-        backendUrl + "/api/order/track-all",
+      const response = await axios.post(
+        backendUrl + "/api/order/track",
         { orderIds },
         { headers: { token } }
       );

@@ -164,22 +164,33 @@ const EditProduct = ({ token }) => {
               className="w-full sm:w-20 h-24 sm:h-20 border border-gray-700 rounded-md flex items-center justify-center cursor-pointer bg-[#1A0E0E] hover:border-gray-500 transition"
             >
               {img ? (
-                typeof img === "string" ? (
+                // If it's a File
+                img instanceof File ? (
+                  img.type.startsWith("video/") ? (
+                    <video
+                      src={URL.createObjectURL(img)}
+                      className="w-full h-full object-cover rounded-md"
+                      controls
+                    />
+                  ) : (
+                    <img
+                      src={URL.createObjectURL(img)}
+                      alt="preview"
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                  )
+                ) : (
+                  // If it's a string (Cloudinary URL)
                   <img
-                    className="w-full h-full object-cover rounded-md"
                     src={img}
                     alt="preview"
-                  />
-                ) : (
-                  <img
                     className="w-full h-full object-cover rounded-md"
-                    src={URL.createObjectURL(img)}
-                    alt="preview"
                   />
                 )
               ) : (
                 <Upload className="text-gray-400 w-6 h-6" />
               )}
+
               <input
                 onChange={(e) => {
                   const file = e.target.files[0];
@@ -189,6 +200,7 @@ const EditProduct = ({ token }) => {
                   if (index === 3) setImage4(file);
                 }}
                 type="file"
+                accept="image/*,video/*"
                 id={`image${index + 1}`}
                 hidden
               />
@@ -252,6 +264,7 @@ const EditProduct = ({ token }) => {
             value={category}
             className="bg-[#1A0E0E] border border-gray-700 px-4 py-2 rounded-md"
           >
+            <option value="default">Choose category</option>
             {categories.map((cat) => (
               <option key={cat._id} value={cat.name}>
                 {cat.name}

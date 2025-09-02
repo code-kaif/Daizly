@@ -3,6 +3,7 @@ import userModel from "../models/userModel.js";
 import nodemailer from "nodemailer";
 import { Parser } from "json2csv";
 import razorpay from "razorpay";
+import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import {
   cancelShiprocketOrder,
@@ -219,32 +220,24 @@ const updateStatus = async (req, res) => {
   }
 };
 
-// Track single order (Frontend)
-const TrackOrder = async (req, res) => {
+const BulkTrackOrders = async (req, res) => {
   try {
-    const { orderId } = req.body;
-    const order = await orderModel.findById(orderId);
+    const { orderIds } = req.body;
+    console.log(orderIds);
 
-    if (!order || !order.shiprocketShipmentId) {
-      return res.json({ success: false, message: "Tracking not available" });
+    if (!orderIds || !Array.isArray(orderIds)) {
+      return res.json({ success: false, message: "orderIds required" });
     }
 
-    const tracking = await getShiprocketTracking(order.shiprocketShipmentId);
-    res.json({ success: true, tracking });
-  } catch (error) {
-    console.error("Track order error:", error);
-    res.json({ success: false, message: error.message });
-  }
-};
+    // 🔹 Cast to ObjectId
+    const objectIds = orderIds.map((id) => new mongoose.Types.ObjectId(id));
 
-// Track all orders (Admin)
-const TrackAllOrdersAdmin = async (req, res) => {
-  try {
     const orders = await orderModel.find({
-      shiprocketShipmentId: { $exists: true },
+      _id: { $in: objectIds },
+      shiprocketShipmentId: { $exists: true, $ne: null },
     });
-    let trackingResults = {};
 
+    let trackingResults = {};
     for (const order of orders) {
       try {
         const tracking = await getShiprocketTracking(
@@ -252,13 +245,13 @@ const TrackAllOrdersAdmin = async (req, res) => {
         );
         trackingResults[order._id] = tracking;
       } catch (err) {
-        trackingResults[order._id] = { error: err.message };
+        trackingResults[order._id] = [];
       }
     }
 
     res.json({ success: true, tracking: trackingResults });
   } catch (error) {
-    console.error("Admin tracking error:", error);
+    console.error("Bulk tracking error:", error);
     res.json({ success: false, message: error.message });
   }
 };
@@ -433,6 +426,5 @@ export {
   exportOrdersCsv,
   cancelOrder,
   cancelledOrder,
-  TrackOrder,
-  TrackAllOrdersAdmin,
+  BulkTrackOrders,
 };

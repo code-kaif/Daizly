@@ -20,7 +20,6 @@ const Orders = ({ token }) => {
       if (response.data.success) {
         let ordersData = response.data.orders.reverse();
 
-        // 🔹 Fetch Shiprocket tracking for all orders
         const trackRes = await axios.get(
           backendUrl + "/api/order/track-all",
           { orderIds: ordersData.map((o) => o._id) },

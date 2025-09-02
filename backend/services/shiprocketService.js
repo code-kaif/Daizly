@@ -188,5 +188,15 @@ export async function getShiprocketTracking(shipmentId) {
     `https://apiv2.shiprocket.in/v1/external/courier/track/shipment/${shipmentId}`,
     { headers: { Authorization: `Bearer ${shiprocketToken}` } }
   );
-  return data;
+
+  // return only status + date
+  const track = data?.tracking_data;
+  return track
+    ? [
+        {
+          current_status: track.shipment_status,
+          status_date: track.track_url ? new Date().toLocaleString() : "",
+        },
+      ]
+    : [];
 }

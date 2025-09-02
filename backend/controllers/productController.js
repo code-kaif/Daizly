@@ -83,7 +83,7 @@ export const updateProduct = async (req, res) => {
       imagesUrl = await Promise.all(
         images.map(async (item) => {
           let result = await cloudinary.uploader.upload(item.path, {
-            resource_type: "image",
+            resource_type: "auto",
           });
           return result.secure_url;
         })

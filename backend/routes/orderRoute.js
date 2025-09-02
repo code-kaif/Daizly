@@ -9,9 +9,7 @@ import {
   cancelOrder,
   cancelledOrder,
   exportOrdersCsv,
-  TrackOrder,
-  TrackAllOrdersAdmin,
-  // exportMonthlyOrders,
+  BulkTrackOrders,
 } from "../controllers/orderController.js";
 import adminAuth from "../middleware/adminAuth.js";
 import authUser from "../middleware/auth.js";
@@ -21,8 +19,8 @@ const orderRouter = express.Router();
 // Admin Features
 orderRouter.post("/list", adminAuth, allOrders);
 orderRouter.post("/status", adminAuth, updateStatus);
-orderRouter.post("/track", authUser, TrackOrder);
-orderRouter.get("/track-all", adminAuth, TrackAllOrdersAdmin);
+orderRouter.post("/track", authUser, BulkTrackOrders);
+orderRouter.get("/track-all", adminAuth, BulkTrackOrders);
 orderRouter.get("/export", adminAuth, exportOrdersCsv);
 // orderRouter.get("/export-monthly", adminAuth, exportMonthlyOrders);
 

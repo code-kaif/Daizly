@@ -246,6 +246,7 @@ const Add = ({ token }) => {
             value={category}
             className="bg-[#1A0E0E] w-full border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-white"
           >
+            <option value="default">Choose category</option>
             {categories.map((cat) => (
               <option key={cat._id} value={cat.name}>
                 {cat.name}

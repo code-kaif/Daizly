@@ -9,6 +9,7 @@ const Add = ({ token }) => {
   const [image2, setImage2] = useState(false);
   const [image3, setImage3] = useState(false);
   const [image4, setImage4] = useState(false);
+  const [image5, setImage5] = useState(false);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -92,6 +93,7 @@ const Add = ({ token }) => {
       image2 && formData.append("image2", image2);
       image3 && formData.append("image3", image3);
       image4 && formData.append("image4", image4);
+      image5 && formData.append("image5", image5);
 
       const response = await axios.post(
         backendUrl + "/api/product/add",
@@ -107,6 +109,7 @@ const Add = ({ token }) => {
         setImage2(false);
         setImage3(false);
         setImage4(false);
+        setImage5(false);
         setPrice("");
         setDiscount("");
         setSizes([]);
@@ -145,7 +148,7 @@ const Add = ({ token }) => {
       <div className="w-full">
         <p className="mb-2">Upload Image</p>
         <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3">
-          {[image1, image2, image3, image4].map((img, index) => (
+          {[image1, image2, image3, image4, image5].map((img, index) => (
             <label
               key={index}
               htmlFor={`image${index + 1}`}
@@ -176,6 +179,7 @@ const Add = ({ token }) => {
                   if (index === 1) setImage2(file);
                   if (index === 2) setImage3(file);
                   if (index === 3) setImage4(file);
+                  if (index === 4) setImage5(file);
                 }}
                 type="file"
                 accept="image/*,video/*" // ✅ allow images & videos

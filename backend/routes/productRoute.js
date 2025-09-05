@@ -6,7 +6,9 @@ import {
   singleProduct,
   addReview,
   getReviews,
-  updateProduct, // ⭐ new controller
+  updateProduct,
+  updateFavorite,
+  getFavorites,
 } from "../controllers/productController.js";
 
 import upload from "../middleware/multer.js";
@@ -24,6 +26,7 @@ productRouter.post(
     { name: "image2", maxCount: 1 },
     { name: "image3", maxCount: 1 },
     { name: "image4", maxCount: 1 },
+    { name: "image5", maxCount: 1 },
   ]),
   addProduct
 );
@@ -41,6 +44,7 @@ productRouter.put(
     { name: "image2", maxCount: 1 },
     { name: "image3", maxCount: 1 },
     { name: "image4", maxCount: 1 },
+    { name: "image5", maxCount: 1 },
   ]),
   updateProduct
 );
@@ -48,5 +52,7 @@ productRouter.put(
 // ⭐ Reviews Routes
 productRouter.post("/:id/review", authUser, addReview); // add review
 productRouter.get("/:id/reviews", getReviews); // fetch reviews
+productRouter.put("/favorite/:id", updateFavorite); // update favorite status
+productRouter.get("/favorites", getFavorites);
 
 export default productRouter;

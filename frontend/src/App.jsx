@@ -21,6 +21,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import ReturnPolicy from "./pages/ReturnPolicy";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import WhatsAppButton from "./components/WattsAppButton";
+import Favorite from "./pages/Favorite";
 
 const App = () => {
   return (
@@ -52,6 +53,7 @@ const App = () => {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/return-policy" element={<ReturnPolicy />} />
           <Route path="/shipping-policy" element={<ShippingPolicy />} />
+          <Route path="/favorite" element={<Favorite />} />
         </Routes>
         <WhatsAppButton />
         <Footer />

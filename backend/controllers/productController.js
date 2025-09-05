@@ -19,8 +19,9 @@ const addProduct = async (req, res) => {
     const image2 = req.files.image2 && req.files.image2[0];
     const image3 = req.files.image3 && req.files.image3[0];
     const image4 = req.files.image4 && req.files.image4[0];
+    const image5 = req.files.image5 && req.files.image5[0];
 
-    const images = [image1, image2, image3, image4].filter(
+    const images = [image1, image2, image3, image4, image5].filter(
       (item) => item !== undefined
     );
 
@@ -81,6 +82,7 @@ export const updateProduct = async (req, res) => {
     const image2 = req.files?.image2 && req.files.image2[0];
     const image3 = req.files?.image3 && req.files.image3[0];
     const image4 = req.files?.image4 && req.files.image4[0];
+    const image5 = req.files?.image5 && req.files.image5[0];
 
     // Start with existing images
     let updatedImages = [...existingProduct.image];
@@ -112,6 +114,13 @@ export const updateProduct = async (req, res) => {
         resource_type: "auto",
       });
       updatedImages[3] = result.secure_url;
+    }
+
+    if (image5) {
+      const result = await cloudinary.uploader.upload(image5.path, {
+        resource_type: "auto",
+      });
+      updatedImages[4] = result.secure_url;
     }
 
     // Prepare update object
@@ -222,6 +231,40 @@ const addReview = async (req, res) => {
     await product.save();
 
     res.json({ success: true, message: "Review added successfully" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// ⭐ Update favorite status
+export const updateFavorite = async (req, res) => {
+  try {
+    const { id } = req.params; // product id
+    const { isFavorite } = req.body; // true or false
+
+    const product = await productModel.findByIdAndUpdate(
+      id,
+      { isFavorite },
+      { new: true }
+    );
+
+    if (!product) {
+      return res.json({ success: false, message: "Product not found" });
+    }
+
+    res.json({ success: true, product });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// ⭐ Get all favorite products
+export const getFavorites = async (req, res) => {
+  try {
+    const favorites = await productModel.find({ isFavorite: true });
+    res.json({ success: true, products: favorites });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });

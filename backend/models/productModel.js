@@ -30,6 +30,7 @@ const productSchema = new mongoose.Schema({
   // New fields for reviews
   reviews: [reviewSchema],
   averageRating: { type: Number, default: 0 },
+  isFavorite: { type: Boolean, default: false },
 });
 
 const productModel =

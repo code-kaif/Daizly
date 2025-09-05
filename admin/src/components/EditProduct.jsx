@@ -13,6 +13,7 @@ const EditProduct = ({ token }) => {
   const [image2, setImage2] = useState(false);
   const [image3, setImage3] = useState(false);
   const [image4, setImage4] = useState(false);
+  const [image5, setImage5] = useState(false);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -53,6 +54,7 @@ const EditProduct = ({ token }) => {
             setImage2(p.image[1] || false);
             setImage3(p.image[2] || false);
             setImage4(p.image[3] || false);
+            setImage5(p.image[4] || false);
           }
         } else {
           toast.error(res.data.message);
@@ -99,6 +101,7 @@ const EditProduct = ({ token }) => {
       if (image2 instanceof File) formData.append("image2", image2);
       if (image3 instanceof File) formData.append("image3", image3);
       if (image4 instanceof File) formData.append("image4", image4);
+      if (image5 instanceof File) formData.append("image5", image5);
 
       const response = await axios.put(
         `${backendUrl}/api/product/update/${id}`,
@@ -157,7 +160,7 @@ const EditProduct = ({ token }) => {
       <div className="w-full">
         <p className="mb-2">Upload Image</p>
         <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3">
-          {[image1, image2, image3, image4].map((img, index) => (
+          {[image1, image2, image3, image4, image5].map((img, index) => (
             <label
               key={index}
               htmlFor={`image${index + 1}`}
@@ -198,6 +201,7 @@ const EditProduct = ({ token }) => {
                   if (index === 1) setImage2(file);
                   if (index === 2) setImage3(file);
                   if (index === 3) setImage4(file);
+                  if (index === 4) setImage5(file);
                 }}
                 type="file"
                 accept="image/*,video/*"

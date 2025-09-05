@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
-import { Search, User, ShoppingCart, Menu, X } from "lucide-react";
+import { Search, User, ShoppingCart, Menu, X, Heart } from "lucide-react";
 import { assets } from "../assets/assets";
 
 const Navbar = () => {
@@ -81,6 +81,10 @@ const Navbar = () => {
             </div>
           )}
         </div>
+
+        <Link to="/favorite" className="relative">
+          <Heart size={20} className="text-white" />
+        </Link>
 
         {/* Cart Icon */}
         <Link to="/cart" className="relative">

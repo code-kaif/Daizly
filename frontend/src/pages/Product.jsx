@@ -1,9 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { toast } from "react-toastify";
+import { Heart } from "lucide-react";
+import axios from "axios";
 
 const Product = () => {
+  const navigate = useNavigate();
   const { productId } = useParams();
   const { products, currency, addToCart, token, backendUrl } =
     useContext(ShopContext);
@@ -55,6 +58,7 @@ const Product = () => {
     }
     addToCart(productData._id, size);
     toast.success("Added to cart");
+    navigate("/cart");
   };
 
   // Submit review
@@ -92,6 +96,34 @@ const Product = () => {
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
+    }
+  };
+
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  // Sync initial favorite status when product loads
+  useEffect(() => {
+    if (productData) {
+      setIsFavorite(productData.isFavorite || false);
+    }
+  }, [productData]);
+
+  // Toggle favorite API
+  const toggleFavorite = async () => {
+    try {
+      const res = await axios.put(
+        `${backendUrl}/api/product/favorite/${productData._id}`,
+        { isFavorite: !isFavorite }
+      );
+      if (res.data.success) {
+        setIsFavorite(!isFavorite);
+        toast.success(
+          !isFavorite ? "Added to favorites" : "Removed from favorites"
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to update favorite");
     }
   };
 
@@ -147,9 +179,22 @@ const Product = () => {
 
         {/* ---------- Product Info ---------- */}
         <div className="flex-1">
-          <h1 className="font-semibold text-3xl text-gray-200 mb-2">
-            {productData.name}
-          </h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="font-semibold text-3xl text-gray-200">
+              {productData.name}
+            </h1>
+
+            <button
+              onClick={toggleFavorite}
+              className={`p-2 rounded-full transition ${
+                isFavorite
+                  ? "bg-red-600 text-white"
+                  : "bg-gray-200 text-gray-600"
+              }`}
+            >
+              <Heart size={22} />
+            </button>
+          </div>
 
           {/* Stock Status */}
           <p
@@ -207,19 +252,24 @@ const Product = () => {
             </div>
           </div>
 
-          <button
-            onClick={handleAddToCart}
-            disabled={productData.stockStatus === "Out of stock"}
-            className={`font-medium rounded-lg px-8 py-3 my-4 text-sm shadow-md transition ${
-              productData.stockStatus === "In stock"
-                ? "bg-[#005530] hover:bg-green-800 text-white"
-                : "bg-gray-600 text-gray-300 cursor-not-allowed"
-            }`}
-          >
-            {productData.stockStatus === "In stock"
-              ? "ADD TO CART"
-              : "Unable to Add"}
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleAddToCart}
+              disabled={
+                productData.stockStatus === "Out of stock" ||
+                productData.stockStatus === "Coming soon"
+              }
+              className={`font-medium rounded-lg px-8 py-3 my-4 text-sm shadow-md transition ${
+                productData.stockStatus === "In stock"
+                  ? "bg-[#005530] hover:bg-green-800 text-white"
+                  : "bg-gray-600 text-gray-300 cursor-not-allowed"
+              }`}
+            >
+              {productData.stockStatus === "In stock"
+                ? "ADD TO CART"
+                : "Unable to Add"}
+            </button>
+          </div>
 
           <hr className="mt-6 sm:w-4/5" />
           <div className="text-sm text-gray-500 mt-5 flex flex-col gap-1">

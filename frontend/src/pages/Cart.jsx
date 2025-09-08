@@ -11,6 +11,20 @@ const Cart = () => {
 
   const [cartData, setCartData] = useState([]);
 
+  // Add fbq tracking when quantity changes
+  const handleQuantityChange = (id, size, qty, product) => {
+    updateQuantity(id, size, qty);
+
+    if (window.fbq && product) {
+      window.fbq("track", "AddToCart", {
+        content_ids: [product._id],
+        content_type: "product",
+        value: product.discount * qty,
+        currency: "INR",
+      });
+    }
+  };
+
   useEffect(() => {
     if (products.length > 0) {
       const tempData = [];
@@ -89,10 +103,11 @@ const Cart = () => {
                     onChange={(e) =>
                       e.target.value === "" || e.target.value === "0"
                         ? null
-                        : updateQuantity(
+                        : handleQuantityChange(
                             item._id,
                             item.size,
-                            Number(e.target.value)
+                            Number(e.target.value),
+                            productData
                           )
                     }
                     className="border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1 bg-gray-900"

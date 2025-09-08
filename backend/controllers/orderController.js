@@ -10,6 +10,7 @@ import {
   createShiprocketOrder,
   getShiprocketTracking,
 } from "../services/shiprocketService.js";
+import { sendMetaEvent } from "../services/metaService.js";
 
 // global variables
 const currency = "inr";
@@ -90,15 +91,29 @@ const placeOrder = async (req, res) => {
       payment: false,
       date: Date.now(),
     };
-
     const newOrder = new orderModel(orderData);
     await newOrder.save();
 
     await createShiprocketOrder(newOrder);
-
     await userModel.findByIdAndUpdate(userId, { cartData: {} });
+    await sendAdminOrderEmail(newOrder);
 
-    await sendAdminOrderEmail(newOrder); // ✅ Send email to admin
+    // 🔹 Send Purchase Event to Meta
+    await sendMetaEvent(
+      "Purchase",
+      {
+        email: address.email,
+        phone: address.phone,
+        ip: req.ip,
+        userAgent: req.headers["user-agent"],
+      },
+      {
+        currency: "INR",
+        value: amount,
+        contents: items.map((i) => ({ id: i._id, quantity: i.quantity })),
+      },
+      `order_${newOrder._id}`
+    );
 
     res.json({ success: true, message: "Order Placed" });
   } catch (error) {
@@ -159,18 +174,32 @@ const verifyRazorpay = async (req, res) => {
         items,
         address,
         amount,
-        coupon: coupon || null,
         paymentMethod: "Razorpay",
         payment: true,
         date: Date.now(),
       };
-
       const newOrder = new orderModel(orderData);
       await newOrder.save();
 
       await createShiprocketOrder(newOrder);
-
       await userModel.findByIdAndUpdate(userId, { cartData: {} });
+
+      // 🔹 Send Purchase Event
+      await sendMetaEvent(
+        "Purchase",
+        {
+          email: address.email,
+          phone: address.phone,
+          ip: req.ip,
+          userAgent: req.headers["user-agent"],
+        },
+        {
+          currency: "INR",
+          value: amount,
+          contents: items.map((i) => ({ id: i._id, quantity: i.quantity })),
+        },
+        `order_${newOrder._id}`
+      );
 
       res.json({ success: true, message: "Payment Successful" });
     } else {
@@ -388,6 +417,19 @@ const cancelOrder = async (req, res) => {
     order.status = "Cancelled";
     order.orderCancelled = true;
     await order.save();
+
+    // After marking order as cancelled
+    await sendMetaEvent(
+      "CancelOrder",
+      {
+        email: order.address.email,
+        phone: order.address.phone,
+        ip: req.ip,
+        userAgent: req.headers["user-agent"],
+      },
+      { currency: "INR", value: order.amount },
+      `order_${order._id}_cancel`
+    );
 
     // Fetch user info
     const user = await userModel.findById(order.userId);

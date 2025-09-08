@@ -72,6 +72,22 @@ const PlaceOrder = () => {
             toast.success("Order placed successfully!");
             navigate("/orders");
             setCartItems({});
+
+            // 🔹 Fire Purchase event
+            if (window.fbq) {
+              window.fbq("track", "Purchase", {
+                value: finalAmount,
+                currency: "INR",
+                contents: orderItems.map((item) => ({
+                  id: item._id,
+                  quantity: item.quantity,
+                })),
+                num_items: orderItems.reduce(
+                  (sum, item) => sum + item.quantity,
+                  0
+                ),
+              });
+            }
           } else {
             toast.error(data.message);
           }
@@ -88,6 +104,23 @@ const PlaceOrder = () => {
   const onSubmitHandler = async (event) => {
     event.preventDefault();
     setIsLoading(true);
+
+    if (window.fbq) {
+      window.fbq("track", "InitiateCheckout", {
+        value: finalAmount,
+        currency: "INR",
+        contents: Object.keys(cartItems).flatMap((id) =>
+          Object.keys(cartItems[id]).map((size) => ({
+            id,
+            quantity: cartItems[id][size],
+          }))
+        ),
+        num_items: Object.values(cartItems).reduce(
+          (sum, sizes) => sum + Object.values(sizes).reduce((a, b) => a + b, 0),
+          0
+        ),
+      });
+    }
 
     try {
       let orderItems = [];
@@ -141,6 +174,22 @@ const PlaceOrder = () => {
           setCartItems({});
           toast.success(response.data.message);
           navigate("/orders");
+
+          // 🔹 Fire Purchase event
+          if (window.fbq) {
+            window.fbq("track", "Purchase", {
+              value: finalAmount,
+              currency: "INR",
+              contents: orderItems.map((item) => ({
+                id: item._id,
+                quantity: item.quantity,
+              })),
+              num_items: orderItems.reduce(
+                (sum, item) => sum + item.quantity,
+                0
+              ),
+            });
+          }
         } else {
           toast.error(response.data.message);
         }

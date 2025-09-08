@@ -78,6 +78,14 @@ const registerUser = async (req, res) => {
 
     const user = await newUser.save();
 
+    // Inside registerUser after new user.save()
+    await sendMetaEvent(
+      "CompleteRegistration",
+      { email, phone: "", ip: req.ip, userAgent: req.headers["user-agent"] },
+      {},
+      `user_${user._id}_signup`
+    );
+
     const token = createToken(user._id);
 
     res.json({ success: true, token });

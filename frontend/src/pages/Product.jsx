@@ -56,8 +56,20 @@ const Product = () => {
       toast.info("Please select a size.");
       return;
     }
+
     addToCart(productData._id, size);
     toast.success("Added to cart");
+
+    // 🔹 Fire Meta AddToCart
+    if (window.fbq) {
+      window.fbq("track", "AddToCart", {
+        content_ids: [productData._id],
+        content_type: "product",
+        value: productData.discount,
+        currency: "INR",
+      });
+    }
+
     navigate("/cart");
   };
 
@@ -126,6 +138,17 @@ const Product = () => {
       toast.error("Failed to update favorite");
     }
   };
+
+  useEffect(() => {
+    if (productData && window.fbq) {
+      window.fbq("track", "ViewContent", {
+        content_ids: [productData._id],
+        content_type: "product",
+        value: productData.discount,
+        currency: "INR",
+      });
+    }
+  }, [productData]);
 
   return productData ? (
     <div className="border-t-2 pt-12 transition-opacity ease-in duration-500 opacity-100">

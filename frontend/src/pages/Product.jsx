@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { toast } from "react-toastify";
-import { Heart } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import axios from "axios";
 
 const Product = () => {
@@ -12,20 +12,31 @@ const Product = () => {
     useContext(ShopContext);
 
   const [productData, setProductData] = useState(null);
-  const [image, setImage] = useState("");
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [size, setSize] = useState("");
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // Reviews
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
 
+  // Check screen size
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Fetch product details
   const fetchProductData = () => {
     products.forEach((item) => {
       if (item._id === productId) {
         setProductData(item);
-        setImage(item.image[0]);
+        setCurrentImageIndex(0);
       }
     });
   };
@@ -49,6 +60,35 @@ const Product = () => {
     fetchReviews();
     // eslint-disable-next-line
   }, [productId, products]);
+
+  // Image navigation functions
+  const nextImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === productData.image.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? productData.image.length - 1 : prevIndex - 1
+    );
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (productData) {
+        if (e.key === "ArrowRight") {
+          nextImage();
+        } else if (e.key === "ArrowLeft") {
+          prevImage();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [productData]);
 
   // Add to cart
   const handleAddToCart = () => {
@@ -159,9 +199,11 @@ const Product = () => {
             {productData.image.map((item, index) => (
               <div
                 key={index}
-                onClick={() => setImage(item)}
-                className={`w-24 h-24 rounded-lg cursor-pointer border ${
-                  image === item ? "border-gray-800" : "border-gray-200"
+                onClick={() => setCurrentImageIndex(index)}
+                className={`w-24 h-24 rounded-lg cursor-pointer border transition-all ${
+                  currentImageIndex === index
+                    ? "border-gray-800 ring-2 ring-[#005530]"
+                    : "border-gray-200 hover:border-gray-400"
                 }`}
               >
                 {item.includes(".mp4") || item.includes("video/upload") ? (
@@ -174,29 +216,71 @@ const Product = () => {
                   <img
                     src={item}
                     className="w-full h-full object-cover rounded-lg"
-                    alt=""
+                    alt={`Thumbnail ${index + 1}`}
                   />
                 )}
               </div>
             ))}
           </div>
 
-          <div className="w-full lg:w-[75%]">
-            {image.includes(".mp4") || image.includes("video/upload") ? (
-              <video
-                src={image}
-                className="w-full rounded-lg shadow-md"
-                controls
-                autoPlay
-                loop
-              />
-            ) : (
-              <img
-                src={image}
-                className="w-full rounded-lg shadow-md transition-transform duration-300 hover:scale-[1.02]"
-                alt=""
-              />
-            )}
+          <div className="w-full lg:w-[75%] relative">
+            {/* Main Image with Navigation */}
+            <div className="relative group">
+              {productData.image[currentImageIndex].includes(".mp4") ||
+              productData.image[currentImageIndex].includes("video/upload") ? (
+                <video
+                  src={productData.image[currentImageIndex]}
+                  className="w-full rounded-lg shadow-md"
+                  controls
+                  autoPlay
+                  loop
+                />
+              ) : (
+                <img
+                  src={productData.image[currentImageIndex]}
+                  className="w-full rounded-lg shadow-md transition-transform duration-300 group-hover:scale-[1.02]"
+                  alt={productData.name}
+                />
+              )}
+
+              {/* Navigation Arrows - Always visible on mobile */}
+              {productData.image.length > 1 && (
+                <>
+                  {/* Left Arrow */}
+                  <button
+                    onClick={prevImage}
+                    className={`absolute left-3 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full ${
+                      isMobile
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    } transition-opacity duration-300`}
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+
+                  {/* Right Arrow */}
+                  <button
+                    onClick={nextImage}
+                    className={`absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full ${
+                      isMobile
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
+                    } transition-opacity duration-300`}
+                    aria-label="Next image"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+                </>
+              )}
+
+              {/* Image Counter */}
+              {productData.image.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                  {currentImageIndex + 1} / {productData.image.length}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -212,10 +296,10 @@ const Product = () => {
               className={`p-2 rounded-full transition ${
                 isFavorite
                   ? "bg-red-600 text-white"
-                  : "bg-gray-200 text-gray-600"
+                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
               }`}
             >
-              <Heart size={22} />
+              <Heart size={22} fill={isFavorite ? "currentColor" : "none"} />
             </button>
           </div>
 

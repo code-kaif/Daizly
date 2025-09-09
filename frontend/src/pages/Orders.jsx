@@ -4,6 +4,7 @@ import Title from "../components/Title";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { MoreHorizontal } from "lucide-react";
 
 const Orders = () => {
   const { backendUrl, token, currency } = useContext(ShopContext);
@@ -97,6 +98,15 @@ const Orders = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "Date not available";
+    try {
+      return new Date(dateString).toLocaleString();
+    } catch {
+      return dateString;
+    }
+  };
+
   useEffect(() => {
     loadOrderData();
   }, [token]);
@@ -185,7 +195,7 @@ const Orders = () => {
                       <div>
                         <p className="font-medium">{step.current_status}</p>
                         <p className="text-xs text-gray-400">
-                          {step.status_date}
+                          {formatDate(step.status_date)}
                           {step.location && ` - ${step.location}`}
                           {step.message && ` (${step.message})`}
                         </p>
@@ -201,18 +211,36 @@ const Orders = () => {
               </div>
 
               {/* Cancel Button */}
-              <div className="flex justify-center md:justify-end">
+              {/* Cancel Dropdown with 3-dot menu */}
+              <div className="flex justify-center md:justify-end relative">
                 {(item.status === "Order Placed" ||
                   item.status === "Out for delivery") && (
-                  <button
-                    onClick={() => {
-                      setSelectedOrderId(item._id);
-                      setShowModal(true);
-                    }}
-                    className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-6 py-2 rounded"
-                  >
-                    Cancel
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() =>
+                        setSelectedOrderId(
+                          selectedOrderId === item._id ? null : item._id
+                        )
+                      }
+                      className="p-2 rounded-full hover:bg-gray-700 transition"
+                    >
+                      <MoreHorizontal className="text-white" size={20} />
+                    </button>
+
+                    {selectedOrderId === item._id && (
+                      <div className="absolute right-0 mt-2 w-32 bg-gray-800 rounded-md shadow-lg z-10">
+                        <button
+                          onClick={() => {
+                            setShowModal(true);
+                            setSelectedOrderId(item._id);
+                          }}
+                          className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700 hover:text-red-400"
+                        >
+                          Cancel Order
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

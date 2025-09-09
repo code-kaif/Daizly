@@ -182,57 +182,92 @@ export async function cancelShiprocketOrder(shiprocketOrderId) {
   }
 }
 
-// shiprocket tracking api - FIXED
+// shiprocket tracking api - UPDATED
 export async function getShiprocketTracking(shipmentId) {
   await ensureLogin();
   try {
     const { data } = await axios.get(
       `https://apiv2.shiprocket.in/v1/external/courier/track/shipment/${shipmentId}`,
-      { headers: { Authorization: `Bearer ${shiprocketToken}` } }
+      {
+        headers: { Authorization: `Bearer ${shiprocketToken}` },
+        timeout: 10000, // 10 second timeout
+      }
     );
 
-    console.log("Shiprocket API Response:", JSON.stringify(data, null, 2));
+    console.log("Shiprocket API Full Response:", JSON.stringify(data, null, 2));
 
     // Extract the specific shipment data
     const shipmentData = data[shipmentId] || data;
     const track = shipmentData?.tracking_data;
 
     if (!track) {
-      return [];
+      return [
+        {
+          current_status: "No Tracking Data",
+          status_date: new Date().toLocaleString(),
+          message: "Shipment not found in tracking system",
+        },
+      ];
     }
 
-    // Check for "no activities found" error
+    // DEBUG: Log the actual structure
+    console.log("Track status:", track.track_status);
+    console.log("Shipment status:", track.shipment_status);
+    console.log("Error:", track.error);
+    console.log("Shipment track array:", track.shipment_track);
+
+    // Check if there's a meaningful shipment status even if track_status is 0
+    if (
+      track.shipment_status &&
+      track.shipment_status !== 0 &&
+      track.shipment_status !== "0"
+    ) {
+      // Map Shiprocket statuses to your display statuses
+      const statusMap = {
+        NEW: "New Order",
+        PROCESSING: "Processing",
+        MANIFEST_GENERATED: "Manifest Generated",
+        DISPATCHED: "Dispatched",
+        IN_TRANSIT: "In Transit",
+        OUT_FOR_DELIVERY: "Out for Delivery",
+        DELIVERED: "Delivered",
+        CANCELLED: "Cancelled",
+        RTO: "Returned to Origin",
+        LOST: "Lost",
+        DAMAGED: "Damaged",
+      };
+
+      const displayStatus =
+        statusMap[track.shipment_status] || track.shipment_status;
+
+      return [
+        {
+          current_status: displayStatus,
+          status_date: track.updated_at || new Date().toLocaleString(),
+          location: track.consignee_detail?.city || "",
+          message: "Latest status from Shiprocket",
+        },
+      ];
+    }
+
+    // Check for "no activities found" error but shipment exists
     if (track.error && track.error.includes("no activities found")) {
       return [
         {
-          current_status: "Awaiting Tracking Update",
+          current_status: "Order Placed",
           status_date: new Date().toLocaleString(),
-          message: "Tracking information will be available soon",
+          message: "Awaiting first tracking scan from courier",
         },
       ];
     }
 
-    // Check if track_status is 0 (no tracking data)
-    if (track.track_status === 0 || track.shipment_status === 0) {
+    // Check if track_status is 0 but shipment exists
+    if (track.track_status === 0 || track.track_status === "0") {
       return [
         {
-          current_status: "Shipment Created",
+          current_status: "Order Confirmed",
           status_date: new Date().toLocaleString(),
-          message: "Awaiting first tracking update from courier",
-        },
-      ];
-    }
-
-    // Check if shipment is cancelled
-    if (
-      track.shipment_status === "Cancelled" ||
-      track.shipment_status?.includes("Cancel")
-    ) {
-      return [
-        {
-          current_status: "Cancelled",
-          status_date: track.updated_at || new Date().toLocaleString(),
-          location: track.consignee_detail?.city || "",
+          message: "Shipment created, awaiting pickup",
         },
       ];
     }
@@ -261,7 +296,7 @@ export async function getShiprocketTracking(shipmentId) {
     }
 
     // Fallback to basic status if available
-    if (track.shipment_status && track.shipment_status !== 0) {
+    if (track.shipment_status) {
       return [
         {
           current_status: track.shipment_status,
@@ -270,7 +305,7 @@ export async function getShiprocketTracking(shipmentId) {
       ];
     }
 
-    // Default response when no tracking data is available yet
+    // Default response
     return [
       {
         current_status: "Processing",
@@ -283,6 +318,25 @@ export async function getShiprocketTracking(shipmentId) {
       "Shiprocket tracking error:",
       error.response?.data || error.message
     );
+
+    // More specific error handling
+    if (error.response?.status === 401) {
+      // Token expired, reset and retry
+      shiprocketToken = null;
+      await ensureLogin();
+      return getShiprocketTracking(shipmentId); // Retry
+    }
+
+    if (error.response?.status === 404) {
+      return [
+        {
+          current_status: "Not Found",
+          status_date: new Date().toLocaleString(),
+          message: "Shipment ID not found in Shiprocket",
+        },
+      ];
+    }
+
     return [
       {
         current_status: "Tracking Error",

@@ -249,7 +249,38 @@ const updateStatus = async (req, res) => {
   }
 };
 
-// Add debug logging to identify issues
+// Add this function to update order status based on tracking
+export async function updateOrderStatusFromTracking(orderId, trackingStatus) {
+  try {
+    const statusMap = {
+      "New Order": "Order Placed",
+      "Order Confirmed": "Order Placed",
+      Processing: "Processing",
+      "Manifest Generated": "Processing",
+      Dispatched: "Dispatched",
+      "In Transit": "In Transit",
+      "Out for Delivery": "Out for Delivery",
+      Delivered: "Delivered",
+      Cancelled: "Cancelled",
+      "Returned to Origin": "RTO",
+      Lost: "Lost",
+      Damaged: "Damaged",
+    };
+
+    const newStatus = statusMap[trackingStatus] || trackingStatus;
+
+    await orderModel.findByIdAndUpdate(orderId, {
+      status: newStatus,
+      ...(newStatus === "Delivered" && { orderCompleted: true }),
+    });
+
+    console.log(`Updated order ${orderId} status to: ${newStatus}`);
+  } catch (error) {
+    console.error(`Error updating order status: ${error.message}`);
+  }
+}
+
+// Modify BulkTrackOrders to update statuses
 const BulkTrackOrders = async (req, res) => {
   try {
     const { orderIds } = req.body;
@@ -261,30 +292,17 @@ const BulkTrackOrders = async (req, res) => {
 
     const objectIds = orderIds.map((id) => new mongoose.Types.ObjectId(id));
 
-    // Find orders that are NOT cancelled and have shipment IDs
     const orders = await orderModel.find({
       _id: { $in: objectIds },
       shiprocketShipmentId: { $exists: true, $ne: null },
-      orderCancelled: { $ne: true }, // Exclude cancelled orders
-      status: { $ne: "Cancelled" }, // Double check status field too
+      orderCancelled: { $ne: true },
+      status: { $ne: "Cancelled" },
     });
-
-    console.log(
-      "Valid orders for tracking:",
-      orders.map((o) => ({
-        _id: o._id,
-        shipmentId: o.shiprocketShipmentId,
-        status: o.status,
-        cancelled: o.orderCancelled,
-      }))
-    );
 
     let trackingResults = {};
     for (const order of orders) {
       try {
-        // Skip if order is cancelled (additional safety check)
         if (order.orderCancelled || order.status === "Cancelled") {
-          console.log(`Skipping cancelled order: ${order._id}`);
           trackingResults[order._id] = [];
           continue;
         }
@@ -295,10 +313,15 @@ const BulkTrackOrders = async (req, res) => {
         const tracking = await getShiprocketTracking(
           order.shiprocketShipmentId
         );
-        console.log(
-          `Tracking result for ${order.shiprocketShipmentId}:`,
-          tracking
-        );
+
+        // Update order status based on tracking
+        if (tracking && tracking.length > 0) {
+          await updateOrderStatusFromTracking(
+            order._id,
+            tracking[0].current_status
+          );
+        }
+
         trackingResults[order._id] = tracking;
       } catch (err) {
         console.error(`Tracking error for ${order.shiprocketShipmentId}:`, err);
@@ -306,7 +329,6 @@ const BulkTrackOrders = async (req, res) => {
       }
     }
 
-    // For cancelled orders that were requested but filtered out, return empty array
     orderIds.forEach((id) => {
       if (!trackingResults[id]) {
         trackingResults[id] = [];

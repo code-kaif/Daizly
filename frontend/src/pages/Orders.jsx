@@ -35,7 +35,6 @@ const Orders = () => {
               item["payment"] = order.payment;
               item["paymentMethod"] = order.paymentMethod;
               item["date"] = order.date;
-              // Inside loadOrderData -> when pushing items:
               item["trackingSteps"] = order.trackingSteps || [];
               order["orderCancelled"] && (item["cancelled"] = true);
               allOrdersItem.push(item);
@@ -154,7 +153,8 @@ const Orders = () => {
                   </p>
                 </div>
               </div>
-              {/* Tracking Progress */}
+
+              {/* Tracking Progress - FIXED: Added tracking details text */}
               <div className="flex flex-col gap-2 px-4">
                 {item.orderCancelled || item.status === "Cancelled" ? (
                   <div className="flex items-center gap-2 text-sm text-red-400">
@@ -169,7 +169,7 @@ const Orders = () => {
                         step.current_status === "Delivered"
                           ? "text-green-400"
                           : step.current_status === "Cancelled" ||
-                            step.current_status.includes("Failed")
+                            String(step.current_status || "").includes("Failed")
                           ? "text-red-400"
                           : step.current_status ===
                               "Awaiting Tracking Update" ||
@@ -183,7 +183,9 @@ const Orders = () => {
                           step.current_status === "Delivered"
                             ? "bg-green-500"
                             : step.current_status === "Cancelled" ||
-                              step.current_status.includes("Failed")
+                              String(step.current_status || "").includes(
+                                "Failed"
+                              )
                             ? "bg-red-500"
                             : step.current_status ===
                                 "Awaiting Tracking Update" ||
@@ -192,6 +194,7 @@ const Orders = () => {
                             : "bg-blue-500"
                         }`}
                       ></span>
+                      {/* ADDED: Tracking details text */}
                       <div>
                         <p className="font-medium">{step.current_status}</p>
                         <p className="text-xs text-gray-400">
@@ -211,7 +214,6 @@ const Orders = () => {
               </div>
 
               {/* Cancel Button */}
-              {/* Cancel Dropdown with 3-dot menu */}
               <div className="flex justify-center md:justify-end relative">
                 {(item.status === "Order Placed" ||
                   item.status === "Out for delivery") && (

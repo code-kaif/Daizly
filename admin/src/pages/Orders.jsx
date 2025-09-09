@@ -136,7 +136,7 @@ const Orders = ({ token }) => {
                         step.current_status === "Delivered"
                           ? "text-green-400"
                           : step.current_status === "Cancelled" ||
-                            step.current_status.includes("Failed")
+                            String(step.current_status || "").includes("Failed")
                           ? "text-red-400"
                           : step.current_status ===
                               "Awaiting Tracking Update" ||
@@ -150,7 +150,9 @@ const Orders = ({ token }) => {
                           step.current_status === "Delivered"
                             ? "bg-green-500"
                             : step.current_status === "Cancelled" ||
-                              step.current_status.includes("Failed")
+                              String(step.current_status || "").includes(
+                                "Failed"
+                              )
                             ? "bg-red-500"
                             : step.current_status ===
                                 "Awaiting Tracking Update" ||

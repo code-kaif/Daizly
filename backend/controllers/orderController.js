@@ -252,6 +252,13 @@ const updateStatus = async (req, res) => {
 // Add this function to update order status based on tracking
 export async function updateOrderStatusFromTracking(orderId, trackingStatus) {
   try {
+    console.log(
+      `Received trackingStatus: ${trackingStatus}, type: ${typeof trackingStatus}`
+    );
+
+    // Convert to string for consistent lookup
+    const statusKey = String(trackingStatus || "");
+
     const statusMap = {
       "New Order": "Order Placed",
       "Order Confirmed": "Order Placed",
@@ -265,16 +272,18 @@ export async function updateOrderStatusFromTracking(orderId, trackingStatus) {
       "Returned to Origin": "RTO",
       Lost: "Lost",
       Damaged: "Damaged",
+      0: "Order Placed",
+      1: "Processing",
     };
 
-    const newStatus = statusMap[trackingStatus] || trackingStatus;
+    const newStatus = statusMap[statusKey] || statusKey;
 
     await orderModel.findByIdAndUpdate(orderId, {
       status: newStatus,
       ...(newStatus === "Delivered" && { orderCompleted: true }),
     });
 
-    console.log(`Updated order ${orderId} status to: ${newStatus}`);
+    console.log(`Updated order ${orderId} to: ${newStatus}`);
   } catch (error) {
     console.error(`Error updating order status: ${error.message}`);
   }

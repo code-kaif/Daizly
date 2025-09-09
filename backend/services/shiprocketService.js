@@ -237,8 +237,9 @@ export async function getShiprocketTracking(shipmentId) {
         DAMAGED: "Damaged",
       };
 
-      const displayStatus =
-        statusMap[track.shipment_status] || track.shipment_status;
+      const displayStatus = String(
+        statusMap[track.shipment_status] || track.shipment_status || ""
+      );
 
       return [
         {
@@ -284,7 +285,7 @@ export async function getShiprocketTracking(shipmentId) {
 
       if (validEvents.length > 0) {
         return validEvents.map((event) => ({
-          current_status: event.current_status,
+          current_status: String(event.current_status || ""),
           status_date:
             event.status_date ||
             event.updated_time_stamp ||
@@ -299,7 +300,7 @@ export async function getShiprocketTracking(shipmentId) {
     if (track.shipment_status) {
       return [
         {
-          current_status: track.shipment_status,
+          current_status: String(track.shipment_status || ""),
           status_date: track.updated_at || new Date().toLocaleString(),
         },
       ];

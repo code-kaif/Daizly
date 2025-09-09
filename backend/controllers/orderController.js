@@ -262,18 +262,18 @@ export async function updateOrderStatusFromTracking(orderId, trackingStatus) {
     const statusMap = {
       "New Order": "Order Placed",
       "Order Confirmed": "Order Placed",
-      Processing: "Processing",
+      "Processing": "Processing",
       "Manifest Generated": "Processing",
-      Dispatched: "Dispatched",
+      "Dispatched": "Dispatched",
       "In Transit": "In Transit",
       "Out for Delivery": "Out for Delivery",
-      Delivered: "Delivered",
-      Cancelled: "Cancelled",
+      "Delivered": "Delivered",
+      "Cancelled": "Cancelled",
       "Returned to Origin": "RTO",
-      Lost: "Lost",
-      Damaged: "Damaged",
-      0: "Order Placed",
-      1: "Processing",
+      "Lost": "Lost",
+      "Damaged": "Damaged",
+      "0": "Order Placed",
+      "1": "Processing",
     };
 
     const newStatus = statusMap[statusKey] || statusKey;

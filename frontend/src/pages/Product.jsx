@@ -11,7 +11,9 @@ const Product = () => {
   const { productId } = useParams();
   const { products, currency, addToCart, token, backendUrl } =
     useContext(ShopContext);
-  const { shouldShowVideos } = useDevice();
+  const { isInstagramBrowser } = useDevice();
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const videoRef = useRef(null);
 
   const [productData, setProductData] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -24,9 +26,19 @@ const Product = () => {
   const [comment, setComment] = useState("");
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // Video states
-  const [videoPlaying, setVideoPlaying] = useState(false);
-  const videoRefs = useRef([]);
+  const handleVideoPlay = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+      setVideoPlaying(true);
+    }
+  };
+
+  const handleVideoPause = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      setVideoPlaying(false);
+    }
+  };
 
   // Check screen size
   useEffect(() => {
@@ -96,25 +108,6 @@ const Product = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [productData]);
-
-  // Handle video play for iOS
-  const handleVideoPlay = (index) => {
-    if (!shouldShowVideos) {
-      setVideoPlaying(true);
-      // Pause all other videos
-      videoRefs.current.forEach((video, i) => {
-        if (video && i !== index) {
-          video.pause();
-        }
-      });
-    }
-  };
-
-  const handleVideoPause = () => {
-    if (!shouldShowVideos) {
-      setVideoPlaying(false);
-    }
-  };
 
   // Add to cart
   const handleAddToCart = () => {
@@ -216,7 +209,12 @@ const Product = () => {
 
   // Check if file is a video
   const isVideoFile = (url) => {
-    return url && (url.includes(".mp4") || url.includes("video/upload"));
+    return (
+      url &&
+      (url.includes(".mp4") ||
+        url.includes(".mov") ||
+        url.includes("video/upload"))
+    );
   };
 
   return productData ? (
@@ -228,14 +226,17 @@ const Product = () => {
             {productData.image.map((item, index) => (
               <div
                 key={index}
-                onClick={() => setCurrentImageIndex(index)}
+                onClick={() => {
+                  setCurrentImageIndex(index);
+                  setVideoPlaying(false); // Reset video state when changing image
+                }}
                 className={`w-24 h-24 rounded-lg cursor-pointer border transition-all ${
                   currentImageIndex === index
                     ? "border-gray-800 ring-2 ring-[#005530]"
                     : "border-gray-200 hover:border-gray-400"
                 }`}
               >
-                {isVideoFile(item) && shouldShowVideos ? (
+                {isVideoFile(item) && !isInstagramBrowser ? (
                   <div className="relative w-full h-full">
                     <video
                       src={item}
@@ -250,9 +251,26 @@ const Product = () => {
                       />
                     </div>
                   </div>
+                ) : isVideoFile(item) && isInstagramBrowser ? (
+                  // For iOS Instagram: Show video thumbnail with play button
+                  <div className="relative w-full h-full">
+                    <video
+                      src={item}
+                      className="w-full h-full object-cover rounded-lg"
+                      muted
+                      playsInline
+                      preload="metadata"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <Play
+                        size={16}
+                        className="text-white bg-black/50 rounded-full p-1"
+                      />
+                    </div>
+                  </div>
                 ) : (
                   <img
-                    src={isVideoFile(item) ? productData.image[0] : item}
+                    src={item}
                     className="w-full h-full object-cover rounded-lg"
                     alt={`Thumbnail ${index + 1}`}
                   />
@@ -265,8 +283,8 @@ const Product = () => {
             {/* Main Image with Navigation */}
             <div className="relative group">
               {isVideoFile(productData.image[currentImageIndex]) &&
-              shouldShowVideos ? (
-                // Show video only for non-iOS, non-social media browsers
+              !isInstagramBrowser ? (
+                // Show video for all browsers except iOS Instagram
                 <video
                   src={productData.image[currentImageIndex]}
                   className="w-full rounded-lg shadow-md"
@@ -276,13 +294,30 @@ const Product = () => {
                   muted
                   playsInline
                 />
-              ) : isVideoFile(productData.image[currentImageIndex]) ? (
-                // For iOS and social media: Show first image instead of video
-                <img
-                  src={productData.image[0]}
-                  className="w-full rounded-lg shadow-md"
-                  alt={productData.name}
-                />
+              ) : isVideoFile(productData.image[currentImageIndex]) &&
+                isInstagramBrowser ? (
+                // For iOS Instagram: Show video with manual play button
+                <div className="relative">
+                  <video
+                    ref={videoRef}
+                    src={productData.image[currentImageIndex]}
+                    className="w-full rounded-lg shadow-md"
+                    controls={videoPlaying}
+                    muted
+                    playsInline
+                    onEnded={() => setVideoPlaying(false)}
+                  />
+                  {!videoPlaying && (
+                    <div
+                      className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/30"
+                      onClick={handleVideoPlay}
+                    >
+                      <div className="bg-black/70 rounded-full p-4">
+                        <Play size={32} className="text-white" />
+                      </div>
+                    </div>
+                  )}
+                </div>
               ) : (
                 // Regular image
                 <img

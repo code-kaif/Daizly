@@ -1,4 +1,5 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useRef } from "react";
+import { Play } from "lucide-react";
 import { ShopContext } from "../context/ShopContext";
 import { Link } from "react-router-dom";
 import { useDevice } from "../hooks/useDevice";
@@ -11,16 +12,37 @@ const ProductItem = ({
   stockStatus = "In stock",
 }) => {
   const { currency } = useContext(ShopContext);
-  const { shouldShowVideos } = useDevice();
+  const { isInstagramBrowser } = useDevice();
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const videoRef = useRef(null);
 
   const status = String(stockStatus).trim().toLowerCase(); // normalize
   const isComingSoon = status === "coming soon" || status === "coming_soon";
   const isOutOfStock = status === "out of stock" || status === "out_of_stock";
   const showBadge = isComingSoon || isOutOfStock;
 
+  const handleVideoPlay = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+      setVideoPlaying(true);
+    }
+  };
+
+  const handleVideoPause = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      setVideoPlaying(false);
+    }
+  };
+
   // Check if file is a video
   const isVideoFile = (url) => {
-    return url && (url.includes(".mp4") || url.includes("video/upload"));
+    return (
+      url &&
+      (url.includes(".mp4") ||
+        url.includes(".mov") ||
+        url.includes("video/upload"))
+    );
   };
 
   return (
@@ -33,7 +55,7 @@ const ProductItem = ({
         <div className="relative w-full aspect-[4/5] bg-gray-100">
           {/* Primary media */}
           {image?.[0] &&
-            (isVideoFile(image[0]) && shouldShowVideos ? (
+            (isVideoFile(image[0]) && !isInstagramBrowser ? (
               <video
                 src={image[0]}
                 className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100 md:hover:opacity-0"
@@ -42,13 +64,28 @@ const ProductItem = ({
                 loop
                 playsInline
               />
-            ) : isVideoFile(image[0]) ? (
-              // For iOS and social media: Show first image instead of video
-              <img
-                src={image.find((img) => !isVideoFile(img)) || image[0]}
-                alt={name}
-                className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100"
-              />
+            ) : isVideoFile(image[0]) && isInstagramBrowser ? (
+              // For iOS Instagram: Show video with manual play button
+              <div className="relative w-full h-full">
+                <video
+                  ref={videoRef}
+                  src={image[0]}
+                  className="h-full w-full object-cover absolute inset-0 opacity-100"
+                  muted
+                  playsInline
+                  onEnded={() => setVideoPlaying(false)}
+                />
+                {!videoPlaying && (
+                  <div
+                    className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/30"
+                    onClick={handleVideoPlay}
+                  >
+                    <div className="bg-black/70 rounded-full p-2">
+                      <Play size={20} className="text-white" />
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <img
                 src={image[0]}
@@ -57,9 +94,9 @@ const ProductItem = ({
               />
             ))}
 
-          {/* Hover media - Only show for non-iOS/non-social media */}
+          {/* Hover media - Only show for non-iOS Instagram browsers */}
           {image?.[1] &&
-            shouldShowVideos &&
+            !isInstagramBrowser &&
             (isVideoFile(image[1]) ? (
               <video
                 src={image[1]}

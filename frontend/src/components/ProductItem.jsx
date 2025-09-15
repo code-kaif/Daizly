@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { Link } from "react-router-dom";
+import { useDevice } from "../hooks/useDevice";
 
 const ProductItem = ({
   id,
@@ -10,11 +11,17 @@ const ProductItem = ({
   stockStatus = "In stock",
 }) => {
   const { currency } = useContext(ShopContext);
+  const { shouldShowVideos } = useDevice();
 
   const status = String(stockStatus).trim().toLowerCase(); // normalize
   const isComingSoon = status === "coming soon" || status === "coming_soon";
   const isOutOfStock = status === "out of stock" || status === "out_of_stock";
   const showBadge = isComingSoon || isOutOfStock;
+
+  // Check if file is a video
+  const isVideoFile = (url) => {
+    return url && (url.includes(".mp4") || url.includes("video/upload"));
+  };
 
   return (
     <Link
@@ -26,13 +33,21 @@ const ProductItem = ({
         <div className="relative w-full aspect-[4/5] bg-gray-100">
           {/* Primary media */}
           {image?.[0] &&
-            (image[0].includes(".mp4") || image[0].includes("video/upload") ? (
+            (isVideoFile(image[0]) && shouldShowVideos ? (
               <video
                 src={image[0]}
                 className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100 md:hover:opacity-0"
                 autoPlay
                 muted
                 loop
+                playsInline
+              />
+            ) : isVideoFile(image[0]) ? (
+              // For iOS and social media: Show first image instead of video
+              <img
+                src={image.find((img) => !isVideoFile(img)) || image[0]}
+                alt={name}
+                className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100"
               />
             ) : (
               <img
@@ -42,15 +57,17 @@ const ProductItem = ({
               />
             ))}
 
-          {/* Hover media */}
+          {/* Hover media - Only show for non-iOS/non-social media */}
           {image?.[1] &&
-            (image[1].includes(".mp4") || image[1].includes("video/upload") ? (
+            shouldShowVideos &&
+            (isVideoFile(image[1]) ? (
               <video
                 src={image[1]}
                 className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-0 md:hover:opacity-100"
                 autoPlay
                 muted
                 loop
+                playsInline
               />
             ) : (
               <img

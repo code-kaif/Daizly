@@ -4,18 +4,19 @@ import { ShopContext } from "../context/ShopContext";
 import { toast } from "react-toastify";
 import { Heart, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import axios from "axios";
+import { useDevice } from "../hooks/useDevice";
 
 const Product = () => {
   const navigate = useNavigate();
   const { productId } = useParams();
   const { products, currency, addToCart, token, backendUrl } =
     useContext(ShopContext);
+  const { shouldShowVideos } = useDevice();
 
   const [productData, setProductData] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [size, setSize] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isIOS, setIsIOS] = useState(false);
 
   // Reviews
   const [reviews, setReviews] = useState([]);
@@ -27,16 +28,11 @@ const Product = () => {
   const [videoPlaying, setVideoPlaying] = useState(false);
   const videoRefs = useRef([]);
 
-  // Check screen size and iOS
+  // Check screen size
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
-
-    // Detect iOS
-    const iOS =
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    setIsIOS(iOS);
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -103,7 +99,7 @@ const Product = () => {
 
   // Handle video play for iOS
   const handleVideoPlay = (index) => {
-    if (isIOS) {
+    if (!shouldShowVideos) {
       setVideoPlaying(true);
       // Pause all other videos
       videoRefs.current.forEach((video, i) => {
@@ -115,7 +111,7 @@ const Product = () => {
   };
 
   const handleVideoPause = () => {
-    if (isIOS) {
+    if (!shouldShowVideos) {
       setVideoPlaying(false);
     }
   };
@@ -220,7 +216,7 @@ const Product = () => {
 
   // Check if file is a video
   const isVideoFile = (url) => {
-    return url.includes(".mp4") || url.includes("video/upload");
+    return url && (url.includes(".mp4") || url.includes("video/upload"));
   };
 
   return productData ? (
@@ -239,7 +235,7 @@ const Product = () => {
                     : "border-gray-200 hover:border-gray-400"
                 }`}
               >
-                {isVideoFile(item) ? (
+                {isVideoFile(item) && shouldShowVideos ? (
                   <div className="relative w-full h-full">
                     <video
                       src={item}
@@ -256,7 +252,7 @@ const Product = () => {
                   </div>
                 ) : (
                   <img
-                    src={item}
+                    src={isVideoFile(item) ? productData.image[0] : item}
                     className="w-full h-full object-cover rounded-lg"
                     alt={`Thumbnail ${index + 1}`}
                   />
@@ -268,42 +264,27 @@ const Product = () => {
           <div className="w-full lg:w-[75%] relative">
             {/* Main Image with Navigation */}
             <div className="relative group">
-              {isVideoFile(productData.image[currentImageIndex]) ? (
-                <div className="relative">
-                  {isIOS && !videoPlaying ? (
-                    // iOS: Show thumbnail with play button
-                    <div
-                      className="cursor-pointer"
-                      onClick={() => handleVideoPlay(currentImageIndex)}
-                    >
-                      <img
-                        src={productData.image[0]} // Use first image as thumbnail
-                        className="w-full rounded-lg shadow-md"
-                        alt={productData.name}
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-black/70 rounded-full p-3">
-                          <Play size={32} className="text-white" />
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    // Non-iOS or iOS after click: Show video
-                    <video
-                      ref={(el) => (videoRefs.current[currentImageIndex] = el)}
-                      src={productData.image[currentImageIndex]}
-                      className="w-full rounded-lg shadow-md"
-                      controls={isIOS}
-                      autoPlay={!isIOS}
-                      loop={!isIOS}
-                      muted
-                      playsInline
-                      onPlay={() => handleVideoPlay(currentImageIndex)}
-                      onPause={handleVideoPause}
-                    />
-                  )}
-                </div>
+              {isVideoFile(productData.image[currentImageIndex]) &&
+              shouldShowVideos ? (
+                // Show video only for non-iOS, non-social media browsers
+                <video
+                  src={productData.image[currentImageIndex]}
+                  className="w-full rounded-lg shadow-md"
+                  controls
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                />
+              ) : isVideoFile(productData.image[currentImageIndex]) ? (
+                // For iOS and social media: Show first image instead of video
+                <img
+                  src={productData.image[0]}
+                  className="w-full rounded-lg shadow-md"
+                  alt={productData.name}
+                />
               ) : (
+                // Regular image
                 <img
                   src={productData.image[currentImageIndex]}
                   className="w-full rounded-lg shadow-md transition-transform duration-300 group-hover:scale-[1.02]"

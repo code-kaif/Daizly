@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Collection from "./pages/Collection";
@@ -23,42 +23,77 @@ import ShippingPolicy from "./pages/ShippingPolicy";
 import WhatsAppButton from "./components/WattsAppButton";
 import Favorite from "./pages/Favorite";
 
+// Create context for device detection
+export const DeviceContext = createContext();
+
 const App = () => {
+  const [isIOS, setIsIOS] = useState(false);
+  const [isSocialMediaBrowser, setIsSocialMediaBrowser] = useState(false);
+
+  useEffect(() => {
+    // Detect iOS
+    const iOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    setIsIOS(iOS);
+
+    // Detect social media in-app browsers
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isInstagram = userAgent.includes("instagram");
+    const isFacebook = userAgent.includes("fban") || userAgent.includes("fbav");
+    const isTwitter = userAgent.includes("twitter");
+    const isSocialBrowser = isInstagram || isFacebook || isTwitter;
+    setIsSocialMediaBrowser(isSocialBrowser);
+
+    console.log("Device detection:", {
+      iOS,
+      isInstagram,
+      isFacebook,
+      isTwitter,
+    });
+  }, []);
+
+  // Function to check if videos should be shown
+  const shouldShowVideos = !isIOS && !isSocialMediaBrowser;
+
   return (
-    <>
-      <div className="fixed top-0 left-0 w-full z-50">
-        <div className="bg-black md:text-[16px] text-[12px] text-white text-center py-3">
-          USE DAIZLY20 TO GET 20% OFF (ONLY FOR PREPAID ORDERS)
+    <DeviceContext.Provider
+      value={{ isIOS, isSocialMediaBrowser, shouldShowVideos }}
+    >
+      <>
+        <div className="fixed top-0 left-0 w-full z-50">
+          <div className="bg-black md:text-[16px] text-[12px] text-white text-center py-3">
+            USE DAIZLY20 TO GET 20% OFF (ONLY FOR PREPAID ORDERS)
+          </div>
+          <div className="bg-[#005530] px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+            <Navbar />
+          </div>
         </div>
-        <div className="bg-[#005530] px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
-          <Navbar />
+        <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] bg-black pt-[130px] md:pt-[150px]">
+          <ToastContainer />
+          <SearchBar />
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/collection" element={<Collection />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/product/:productId" element={<Product />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/place-order" element={<PlaceOrder />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/verify" element={<Verify />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/return-policy" element={<ReturnPolicy />} />
+            <Route path="/shipping-policy" element={<ShippingPolicy />} />
+            <Route path="/favorite" element={<Favorite />} />
+          </Routes>
+          <WhatsAppButton />
+          <Footer />
         </div>
-      </div>
-      <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] bg-black pt-[130px] md:pt-[150px]">
-        <ToastContainer />
-        <SearchBar />
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/collection" element={<Collection />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/product/:productId" element={<Product />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/place-order" element={<PlaceOrder />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/return-policy" element={<ReturnPolicy />} />
-          <Route path="/shipping-policy" element={<ShippingPolicy />} />
-          <Route path="/favorite" element={<Favorite />} />
-        </Routes>
-        <WhatsAppButton />
-        <Footer />
-      </div>
-    </>
+      </>
+    </DeviceContext.Provider>
   );
 };
 

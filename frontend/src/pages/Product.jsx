@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { toast } from "react-toastify";
-import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import axios from "axios";
 
 const Product = () => {
@@ -15,17 +15,28 @@ const Product = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [size, setSize] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isIOS, setIsIOS] = useState(false);
 
   // Reviews
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [isFavorite, setIsFavorite] = useState(false);
 
-  // Check screen size
+  // Video states
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const videoRefs = useRef([]);
+
+  // Check screen size and iOS
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
+
+    // Detect iOS
+    const iOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    setIsIOS(iOS);
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -90,6 +101,25 @@ const Product = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [productData]);
 
+  // Handle video play for iOS
+  const handleVideoPlay = (index) => {
+    if (isIOS) {
+      setVideoPlaying(true);
+      // Pause all other videos
+      videoRefs.current.forEach((video, i) => {
+        if (video && i !== index) {
+          video.pause();
+        }
+      });
+    }
+  };
+
+  const handleVideoPause = () => {
+    if (isIOS) {
+      setVideoPlaying(false);
+    }
+  };
+
   // Add to cart
   const handleAddToCart = () => {
     if (!size) {
@@ -151,8 +181,6 @@ const Product = () => {
     }
   };
 
-  const [isFavorite, setIsFavorite] = useState(false);
-
   // Sync initial favorite status when product loads
   useEffect(() => {
     if (productData) {
@@ -190,6 +218,11 @@ const Product = () => {
     }
   }, [productData]);
 
+  // Check if file is a video
+  const isVideoFile = (url) => {
+    return url.includes(".mp4") || url.includes("video/upload");
+  };
+
   return productData ? (
     <div className="border-t-2 pt-12 transition-opacity ease-in duration-500 opacity-100">
       <div className="flex flex-col lg:flex-row gap-12">
@@ -206,12 +239,21 @@ const Product = () => {
                     : "border-gray-200 hover:border-gray-400"
                 }`}
               >
-                {item.includes(".mp4") || item.includes("video/upload") ? (
-                  <video
-                    src={item}
-                    className="w-full h-full object-cover rounded-lg"
-                    muted
-                  />
+                {isVideoFile(item) ? (
+                  <div className="relative w-full h-full">
+                    <video
+                      src={item}
+                      className="w-full h-full object-cover rounded-lg"
+                      muted
+                      playsInline
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Play
+                        size={16}
+                        className="text-white bg-black/50 rounded-full p-1"
+                      />
+                    </div>
+                  </div>
                 ) : (
                   <img
                     src={item}
@@ -226,15 +268,41 @@ const Product = () => {
           <div className="w-full lg:w-[75%] relative">
             {/* Main Image with Navigation */}
             <div className="relative group">
-              {productData.image[currentImageIndex].includes(".mp4") ||
-              productData.image[currentImageIndex].includes("video/upload") ? (
-                <video
-                  src={productData.image[currentImageIndex]}
-                  className="w-full rounded-lg shadow-md"
-                  controls
-                  autoPlay
-                  loop
-                />
+              {isVideoFile(productData.image[currentImageIndex]) ? (
+                <div className="relative">
+                  {isIOS && !videoPlaying ? (
+                    // iOS: Show thumbnail with play button
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => handleVideoPlay(currentImageIndex)}
+                    >
+                      <img
+                        src={productData.image[0]} // Use first image as thumbnail
+                        className="w-full rounded-lg shadow-md"
+                        alt={productData.name}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-black/70 rounded-full p-3">
+                          <Play size={32} className="text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Non-iOS or iOS after click: Show video
+                    <video
+                      ref={(el) => (videoRefs.current[currentImageIndex] = el)}
+                      src={productData.image[currentImageIndex]}
+                      className="w-full rounded-lg shadow-md"
+                      controls={isIOS}
+                      autoPlay={!isIOS}
+                      loop={!isIOS}
+                      muted
+                      playsInline
+                      onPlay={() => handleVideoPlay(currentImageIndex)}
+                      onPause={handleVideoPause}
+                    />
+                  )}
+                </div>
               ) : (
                 <img
                   src={productData.image[currentImageIndex]}

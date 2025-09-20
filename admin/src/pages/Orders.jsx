@@ -1,3 +1,5 @@
+// Admin
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { backendUrl, currency } from "../App";
@@ -6,6 +8,72 @@ import { assets } from "../assets/assets";
 
 const Orders = ({ token }) => {
   const [orders, setOrders] = useState([]);
+
+  // Function to convert numeric status codes to readable text
+  const getStatusDisplay = (status) => {
+    if (status === undefined || status === null) return "Unknown Status";
+
+    const statusMap = {
+      // Numeric status mappings (Shiprocket codes)
+      0: "Order Placed",
+      1: "Processing",
+      2: "Processing",
+      3: "Dispatched",
+      4: "In Transit",
+      5: "Out for Delivery",
+      6: "Delivered",
+      7: "Cancelled",
+      8: "RTO",
+      9: "Lost",
+      10: "Damaged",
+      11: "Processing",
+      12: "Processing",
+
+      // String status mappings
+      "New Order": "Order Placed",
+      "Order Confirmed": "Order Placed",
+      Processing: "Processing",
+      "Manifest Generated": "Processing",
+      Dispatched: "Dispatched",
+      "In Transit": "In Transit",
+      "Out for Delivery": "Out for Delivery",
+      Delivered: "Delivered",
+      Cancelled: "Cancelled",
+      "Returned to Origin": "RTO",
+      Lost: "Lost",
+      Damaged: "Damaged",
+      "No Tracking Data": "Processing",
+      "Order Confirmed": "Order Placed",
+      "Tracking Error": "Processing",
+      "Not Found": "Processing",
+    };
+
+    const stringStatus = String(status);
+    return statusMap[stringStatus] || stringStatus;
+  };
+
+  // Function to get status color
+  const getStatusColor = (status) => {
+    const displayStatus = getStatusDisplay(status);
+
+    if (displayStatus === "Delivered") return "green";
+    if (
+      displayStatus === "Cancelled" ||
+      displayStatus === "RTO" ||
+      displayStatus === "Lost" ||
+      displayStatus === "Damaged"
+    )
+      return "red";
+    if (displayStatus === "Out for Delivery") return "blue";
+    if (
+      displayStatus === "Processing" ||
+      displayStatus === "Order Placed" ||
+      displayStatus === "Dispatched" ||
+      displayStatus === "In Transit"
+    )
+      return "yellow";
+    return "gray";
+  };
 
   // FIXED admin api call
   const fetchAllOrders = async () => {
@@ -20,6 +88,15 @@ const Orders = ({ token }) => {
 
       if (response.data.success) {
         let ordersData = response.data.orders.reverse();
+
+        // Filter out cancelled and RTO orders
+        ordersData = ordersData.filter(
+          (order) =>
+            !order.orderCancelled &&
+            order.status !== "Cancelled" &&
+            order.status !== "RTO" &&
+            order.status !== "8" // RTO numeric code
+        );
 
         // FIX: Use POST method with proper request body
         const trackRes = await axios.post(
@@ -123,50 +200,26 @@ const Orders = ({ token }) => {
 
               <div>
                 <h4 className="font-semibold">Tracking:</h4>
-                {order.orderCancelled || order.status === "Cancelled" ? (
-                  <div className="flex items-center gap-2 text-xs text-red-400">
-                    <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                    <p>Order Cancelled - Tracking not available</p>
-                  </div>
-                ) : order.trackingSteps && order.trackingSteps.length > 0 ? (
-                  order.trackingSteps.map((step, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex items-center gap-2 text-xs ${
-                        step.current_status === "Delivered"
-                          ? "text-green-400"
-                          : step.current_status === "Cancelled" ||
-                            String(step.current_status || "").includes("Failed")
-                          ? "text-red-400"
-                          : step.current_status ===
-                              "Awaiting Tracking Update" ||
-                            step.current_status === "Processing"
-                          ? "text-yellow-400"
-                          : "text-blue-200"
-                      }`}
-                    >
-                      <span
-                        className={`w-2 h-2 rounded-full ${
-                          step.current_status === "Delivered"
-                            ? "bg-green-500"
-                            : step.current_status === "Cancelled" ||
-                              String(step.current_status || "").includes(
-                                "Failed"
-                              )
-                            ? "bg-red-500"
-                            : step.current_status ===
-                                "Awaiting Tracking Update" ||
-                              step.current_status === "Processing"
-                            ? "bg-yellow-500"
-                            : "bg-blue-500"
-                        }`}
-                      ></span>
-                      <p>
-                        {step.current_status} – {step.status_date}
-                        {step.message && ` (${step.message})`}
-                      </p>
-                    </div>
-                  ))
+                {order.trackingSteps && order.trackingSteps.length > 0 ? (
+                  order.trackingSteps.map((step, idx) => {
+                    const displayStatus = getStatusDisplay(step.current_status);
+                    const statusColor = getStatusColor(step.current_status);
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`flex items-center gap-2 text-xs text-${statusColor}-400`}
+                      >
+                        <span
+                          className={`w-2 h-2 rounded-full bg-${statusColor}-500`}
+                        ></span>
+                        <p>
+                          {displayStatus} – {step.status_date}
+                          {step.message && ` (${step.message})`}
+                        </p>
+                      </div>
+                    );
+                  })
                 ) : (
                   <div className="flex items-center gap-2 text-xs text-gray-400">
                     <span className="w-2 h-2 rounded-full bg-gray-500"></span>

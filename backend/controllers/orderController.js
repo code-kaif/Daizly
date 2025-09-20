@@ -260,20 +260,34 @@ export async function updateOrderStatusFromTracking(orderId, trackingStatus) {
     const statusKey = String(trackingStatus || "");
 
     const statusMap = {
+      // String status mappings
       "New Order": "Order Placed",
       "Order Confirmed": "Order Placed",
-      "Processing": "Processing",
+      Processing: "Processing",
       "Manifest Generated": "Processing",
-      "Dispatched": "Dispatched",
+      Dispatched: "Dispatched",
       "In Transit": "In Transit",
       "Out for Delivery": "Out for Delivery",
-      "Delivered": "Delivered",
-      "Cancelled": "Cancelled",
+      Delivered: "Delivered",
+      Cancelled: "Cancelled",
       "Returned to Origin": "RTO",
-      "Lost": "Lost",
-      "Damaged": "Damaged",
-      "0": "Order Placed",
-      "1": "Processing",
+      Lost: "Lost",
+      Damaged: "Damaged",
+
+      // Numeric status mappings (Shiprocket codes)
+      0: "Order Placed", // New/Confirmed
+      1: "Processing", // Processing
+      2: "Processing", // Manifest Generated
+      3: "Dispatched", // Dispatched
+      4: "In Transit", // In Transit
+      5: "Out for Delivery", // Out for Delivery
+      6: "Delivered", // Delivered
+      7: "Cancelled", // Cancelled
+      8: "RTO", // Returned to Origin
+      9: "Lost", // Lost
+      10: "Damaged", // Damaged
+      11: "Processing", // Ready to Ship
+      12: "Processing", // Picked Up
     };
 
     const newStatus = statusMap[statusKey] || statusKey;
@@ -283,7 +297,9 @@ export async function updateOrderStatusFromTracking(orderId, trackingStatus) {
       ...(newStatus === "Delivered" && { orderCompleted: true }),
     });
 
-    console.log(`Updated order ${orderId} to: ${newStatus}`);
+    console.log(
+      `Updated order ${orderId} from '${statusKey}' to: '${newStatus}'`
+    );
   } catch (error) {
     console.error(`Error updating order status: ${error.message}`);
   }

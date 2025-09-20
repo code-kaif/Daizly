@@ -92,7 +92,7 @@ const Cancel = ({ token }) => {
                       <div>
                         <p className="font-medium text-gray-200">{item.name}</p>
                         <p className="text-sm text-gray-200 mt-1">
-                          ₹{item.price} | Quantity: {item.quantity} | Size:{" "}
+                          ₹{item.discount} | Quantity: {item.quantity} | Size:{" "}
                           {item.size}
                         </p>
                       </div>

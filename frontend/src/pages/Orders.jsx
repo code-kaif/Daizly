@@ -1,3 +1,5 @@
+// Frontend
+
 import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
@@ -13,6 +15,72 @@ const Orders = () => {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Function to convert numeric status codes to readable text
+  const getStatusDisplay = (status) => {
+    if (status === undefined || status === null) return "Unknown Status";
+
+    const statusMap = {
+      // Numeric status mappings (Shiprocket codes)
+      0: "Order Placed",
+      1: "Processing",
+      2: "Processing",
+      3: "Dispatched",
+      4: "In Transit",
+      5: "Out for Delivery",
+      6: "Delivered",
+      7: "Cancelled",
+      8: "RTO",
+      9: "Lost",
+      10: "Damaged",
+      11: "Processing",
+      12: "Processing",
+
+      // String status mappings
+      "New Order": "Order Placed",
+      "Order Confirmed": "Order Placed",
+      Processing: "Processing",
+      "Manifest Generated": "Processing",
+      Dispatched: "Dispatched",
+      "In Transit": "In Transit",
+      "Out for Delivery": "Out for Delivery",
+      Delivered: "Delivered",
+      Cancelled: "Cancelled",
+      "Returned to Origin": "RTO",
+      Lost: "Lost",
+      Damaged: "Damaged",
+      "No Tracking Data": "Processing",
+      "Order Confirmed": "Order Placed",
+      "Tracking Error": "Processing",
+      "Not Found": "Processing",
+    };
+
+    const stringStatus = String(status);
+    return statusMap[stringStatus] || stringStatus;
+  };
+
+  // Function to get status color
+  const getStatusColor = (status) => {
+    const displayStatus = getStatusDisplay(status);
+
+    if (displayStatus === "Delivered") return "green";
+    if (
+      displayStatus === "Cancelled" ||
+      displayStatus === "RTO" ||
+      displayStatus === "Lost" ||
+      displayStatus === "Damaged"
+    )
+      return "red";
+    if (displayStatus === "Out for Delivery") return "blue";
+    if (
+      displayStatus === "Processing" ||
+      displayStatus === "Order Placed" ||
+      displayStatus === "Dispatched" ||
+      displayStatus === "In Transit"
+    )
+      return "yellow";
+    return "gray";
+  };
 
   // 📌 Load Orders
   const loadOrderData = async () => {
@@ -97,15 +165,6 @@ const Orders = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "Date not available";
-    try {
-      return new Date(dateString).toLocaleString();
-    } catch {
-      return dateString;
-    }
-  };
-
   useEffect(() => {
     loadOrderData();
   }, [token]);
@@ -151,10 +210,21 @@ const Orders = () => {
                   <p className="text-sm text-gray-200">
                     Payment: {item.paymentMethod}
                   </p>
+                  {/* Current Order Status */}
+                  <p className="text-sm mt-1">
+                    Status:{" "}
+                    <span
+                      className={`font-medium text-${getStatusColor(
+                        item.status
+                      )}-400`}
+                    >
+                      {getStatusDisplay(item.status)}
+                    </span>
+                  </p>
                 </div>
               </div>
 
-              {/* Tracking Progress - FIXED: Added tracking details text */}
+              {/* Tracking Progress */}
               <div className="flex flex-col gap-2 px-4">
                 {item.orderCancelled || item.status === "Cancelled" ? (
                   <div className="flex items-center gap-2 text-sm text-red-400">
@@ -162,49 +232,29 @@ const Orders = () => {
                     <p>Order Cancelled - Tracking not available</p>
                   </div>
                 ) : item.trackingSteps && item.trackingSteps.length > 0 ? (
-                  item.trackingSteps.map((step, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex items-center gap-2 text-sm ${
-                        step.current_status === "Delivered"
-                          ? "text-green-400"
-                          : step.current_status === "Cancelled" ||
-                            String(step.current_status || "").includes("Failed")
-                          ? "text-red-400"
-                          : step.current_status ===
-                              "Awaiting Tracking Update" ||
-                            step.current_status === "Processing"
-                          ? "text-yellow-400"
-                          : "text-blue-200"
-                      }`}
-                    >
-                      <span
-                        className={`w-3 h-3 rounded-full ${
-                          step.current_status === "Delivered"
-                            ? "bg-green-500"
-                            : step.current_status === "Cancelled" ||
-                              String(step.current_status || "").includes(
-                                "Failed"
-                              )
-                            ? "bg-red-500"
-                            : step.current_status ===
-                                "Awaiting Tracking Update" ||
-                              step.current_status === "Processing"
-                            ? "bg-yellow-500"
-                            : "bg-blue-500"
-                        }`}
-                      ></span>
-                      {/* ADDED: Tracking details text */}
-                      <div>
-                        <p className="font-medium">{step.current_status}</p>
-                        <p className="text-xs text-gray-400">
-                          {formatDate(step.status_date)}
-                          {step.location && ` - ${step.location}`}
-                          {step.message && ` (${step.message})`}
-                        </p>
+                  item.trackingSteps.map((step, idx) => {
+                    const displayStatus = getStatusDisplay(step.current_status);
+                    const statusColor = getStatusColor(step.current_status);
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`flex items-center gap-2 text-sm text-${statusColor}-400`}
+                      >
+                        <span
+                          className={`w-3 h-3 rounded-full bg-${statusColor}-500`}
+                        ></span>
+                        <div>
+                          <p className="font-medium">{displayStatus}</p>
+                          <p className="text-xs text-gray-400">
+                            {displayStatus} – {step.status_date}
+                            {step.location && ` - ${step.location}`}
+                            {step.message && ` (${step.message})`}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="flex items-center gap-2 text-sm text-gray-400">
                     <span className="w-3 h-3 rounded-full bg-gray-500"></span>
@@ -216,34 +266,43 @@ const Orders = () => {
               {/* Cancel Button */}
               <div className="flex justify-center md:justify-end relative">
                 {(item.status === "Order Placed" ||
-                  item.status === "Out for delivery") && (
-                  <div className="relative">
-                    <button
-                      onClick={() =>
-                        setSelectedOrderId(
-                          selectedOrderId === item._id ? null : item._id
-                        )
-                      }
-                      className="p-2 rounded-full hover:bg-gray-700 transition"
-                    >
-                      <MoreHorizontal className="text-white" size={20} />
-                    </button>
+                  item.status === "Processing" ||
+                  item.status === "Dispatched" ||
+                  item.status === "In Transit" ||
+                  // Handle numeric status codes too
+                  item.status === "0" ||
+                  item.status === "1" ||
+                  item.status === "2" ||
+                  item.status === "3" ||
+                  item.status === "4") &&
+                  !item.orderCancelled && (
+                    <div className="relative">
+                      <button
+                        onClick={() =>
+                          setSelectedOrderId(
+                            selectedOrderId === item._id ? null : item._id
+                          )
+                        }
+                        className="p-2 rounded-full hover:bg-gray-700 transition"
+                      >
+                        <MoreHorizontal className="text-white" size={20} />
+                      </button>
 
-                    {selectedOrderId === item._id && (
-                      <div className="absolute right-0 mt-2 w-32 bg-gray-800 rounded-md shadow-lg z-10">
-                        <button
-                          onClick={() => {
-                            setShowModal(true);
-                            setSelectedOrderId(item._id);
-                          }}
-                          className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700 hover:text-red-400"
-                        >
-                          Cancel Order
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      {selectedOrderId === item._id && (
+                        <div className="absolute right-0 mt-2 w-32 bg-gray-800 rounded-md shadow-lg z-50 border border-gray-600">
+                          <button
+                            onClick={() => {
+                              setShowModal(true);
+                              setSelectedOrderId(item._id);
+                            }}
+                            className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700 hover:text-red-400"
+                          >
+                            Cancel Order
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
               </div>
             </div>
           ))}

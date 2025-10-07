@@ -129,7 +129,14 @@ const Cart = () => {
               <CartTotal />
               <div className="w-full text-end">
                 <button
-                  onClick={() => navigate(token ? "/place-order" : "/login")}
+                  onClick={() => {
+                    if (!token) {
+                      // Redirect to checkout where signup form will be shown
+                      navigate("/place-order");
+                    } else {
+                      navigate("/place-order");
+                    }
+                  }}
                   className="bg-[#005530] hover:bg-green-800 text-white rounded-md text-sm my-8 px-8 py-3 font-medium"
                 >
                   PROCEED TO CHECKOUT

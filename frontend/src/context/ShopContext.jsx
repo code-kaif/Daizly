@@ -14,7 +14,22 @@ const ShopContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const [products, setProducts] = useState([]);
   const [token, setToken] = useState("");
+  const [isInitialized, setIsInitialized] = useState(false); // New state to track initialization
   const navigate = useNavigate();
+
+  // Initialize token from localStorage on app start
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        setToken(storedToken);
+        await getUserCart(storedToken);
+      }
+      setIsInitialized(true);
+    };
+
+    initializeAuth();
+  }, []);
 
   const addToCart = async (itemId, size) => {
     if (!size) {
@@ -116,31 +131,46 @@ const ShopContextProvider = (props) => {
     }
   };
 
-  const getUserCart = async (token) => {
+  const getUserCart = async (userToken) => {
     try {
       const response = await axios.post(
         backendUrl + "/api/cart/get",
         {},
-        { headers: { token } }
+        { headers: { token: userToken } }
       );
       if (response.data.success) {
         setCartItems(response.data.cartData);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      // Don't show error toast for cart fetch as it might be expected for new users
     }
+  };
+
+  // Enhanced setToken function that also persists to localStorage
+  const setTokenAndPersist = (newToken) => {
+    setToken(newToken);
+    if (newToken) {
+      localStorage.setItem("token", newToken);
+    } else {
+      localStorage.removeItem("token");
+    }
+  };
+
+  // Logout function
+  const logout = () => {
+    setTokenAndPersist("");
+    setCartItems({});
+    navigate("/");
+    toast.success("Logged out successfully");
   };
 
   useEffect(() => {
     getProductsData();
   }, []);
 
+  // Sync cart when token changes
   useEffect(() => {
-    if (!token && localStorage.getItem("token")) {
-      setToken(localStorage.getItem("token"));
-      getUserCart(localStorage.getItem("token"));
-    }
     if (token) {
       getUserCart(token);
     }
@@ -162,8 +192,10 @@ const ShopContextProvider = (props) => {
     getCartAmount,
     navigate,
     backendUrl,
-    setToken,
+    setToken: setTokenAndPersist, // Use enhanced setToken
     token,
+    isInitialized, // Export initialization status
+    logout, // Add logout function
   };
 
   return (

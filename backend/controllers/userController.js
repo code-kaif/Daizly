@@ -45,7 +45,7 @@ const loginUser = async (req, res) => {
 // Route for user register
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, cartData } = req.body; // Added cartData
 
     // checking user already exists or not
     const exists = await userModel.findOne({ email });
@@ -75,11 +75,12 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      cartData: cartData || {}, // Use provided cartData or empty object
     });
 
     const user = await newUser.save();
 
-    // Inside registerUser after new user.save()
+    // Meta event
     await sendMetaEvent(
       "CompleteRegistration",
       { email, phone: "", ip: req.ip, userAgent: req.headers["user-agent"] },
@@ -89,7 +90,7 @@ const registerUser = async (req, res) => {
 
     const token = createToken(user._id);
 
-    res.json({ success: true, token });
+    res.json({ success: true, token, cartData: user.cartData }); // Return cartData in response
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });

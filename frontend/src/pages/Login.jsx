@@ -46,7 +46,7 @@ const Login = () => {
   const isLogin = currentState === "Login";
 
   return (
-    <div className="flex h-[80vh] items-center justify-center px-4 bg-[#0E0505]">
+    <div className="flex h-[80vh] items-center justify-center px-4">
       <div className="w-full max-w-2xl bg-[#1a0f0f] shadow-lg rounded-lg p-8 text-white transition-all duration-500">
         {/* Toggle Buttons */}
         <div className="flex justify-between mb-8">

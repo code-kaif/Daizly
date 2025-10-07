@@ -1,6 +1,8 @@
-import React, { useContext, useState } from "react";
+// PlaceOrder.jsx - UPDATED
+import React, { useContext, useState, useEffect } from "react";
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
+import CheckoutSignup from "../components/CheckoutSignup";
 import { assets } from "../assets/assets";
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
@@ -11,6 +13,8 @@ const PlaceOrder = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [finalAmount, setFinalAmount] = useState(0);
+  const [showSignup, setShowSignup] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const {
     navigate,
@@ -37,12 +41,47 @@ const PlaceOrder = () => {
     instagramId: "",
   });
 
+  // Check authentication status properly
+  useEffect(() => {
+    const checkAuth = () => {
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        setShowSignup(false);
+      } else {
+        setShowSignup(true);
+      }
+      setIsCheckingAuth(false);
+    };
+
+    checkAuth();
+  }, [token]); // Also depend on token from context
+
   const onChangeHandler = (event) => {
     const name = event.target.name;
     const value = event.target.value;
     setFormData((data) => ({ ...data, [name]: value }));
   };
 
+  const handleSignupSuccess = () => {
+    setShowSignup(false);
+    toast.success("Welcome! Please continue with your delivery details.");
+  };
+
+  // Show loading while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      </div>
+    );
+  }
+
+  // Show signup form if no token
+  if (showSignup) {
+    return <CheckoutSignup onSignupSuccess={handleSignupSuccess} />;
+  }
+
+  // Rest of your existing PlaceOrder component...
   // ✅ Razorpay init with finalAmount
   const initPay = (order, orderItems, finalAmount, appliedCoupon) => {
     const options = {
@@ -55,7 +94,7 @@ const PlaceOrder = () => {
       handler: async (response) => {
         try {
           const payload = {
-            ...response, // razorpay_order_id, razorpay_payment_id, signature
+            ...response,
             items: orderItems,
             address: formData,
             amount: finalAmount,
@@ -103,6 +142,13 @@ const PlaceOrder = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+
+    // Double check token exists
+    if (!token && !localStorage.getItem("token")) {
+      setShowSignup(true);
+      return;
+    }
+
     setIsLoading(true);
 
     if (window.fbq) {
@@ -198,7 +244,7 @@ const PlaceOrder = () => {
       if (method === "razorpay") {
         const responseRazorpay = await axios.post(
           backendUrl + "/api/order/razorpay",
-          { amount: finalAmount }, // ✅ only send amount here
+          { amount: finalAmount },
           { headers: { token } }
         );
 

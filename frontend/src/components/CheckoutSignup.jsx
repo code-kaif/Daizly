@@ -92,7 +92,7 @@ const CheckoutSignup = ({ onSignupSuccess }) => {
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
+            placeholder="Create Password"
             required
             className="w-full px-4 py-3 border border-gray-700 rounded bg-[#1A0E0E] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500"
           />

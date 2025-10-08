@@ -382,7 +382,7 @@ const PlaceOrder = () => {
             value={formData.instagramId}
             className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
             type="text"
-            placeholder="Instagram Id"
+            placeholder="Instagram Username"
           />
         </div>
       </div>

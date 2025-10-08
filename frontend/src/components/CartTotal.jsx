@@ -147,15 +147,20 @@ const CartTotal = ({ onFinalAmountChange, showInput = false }) => {
         <>
           <div className="text-white mt-2">
             <span>Available coupons: </span>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {coupons.map((coup, index) => (
-                <span
-                  key={index}
-                  className="bg-gray-700 px-2 py-1 rounded text-sm"
-                >
-                  {coup.code}
-                </span>
-              ))}
+            <div className="mt-1">
+              <select
+                className="bg-gray-700 text-white px-2 py-1 rounded text-sm outline-none"
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  See Available Coupon
+                </option>
+                {coupons.map((coup, index) => (
+                  <option key={index} value={coup.code}>
+                    {coup.code}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </>

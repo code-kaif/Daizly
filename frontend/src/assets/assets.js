@@ -20,6 +20,7 @@ import gal2 from "./gal2.jpg";
 import gal3 from "./gal3.jpg";
 import gal4 from "./gal4.jpg";
 import frontview from "./front-view.jpg";
+import onlinepay from "./onlinepay.png";
 
 export const assets = {
   frontview,
@@ -44,6 +45,7 @@ export const assets = {
   gallery1,
   gallery2,
   gallery3,
+  onlinepay,
 };
 
 // export const products = [

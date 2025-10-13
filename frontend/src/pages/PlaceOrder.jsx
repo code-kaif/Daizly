@@ -149,6 +149,12 @@ const PlaceOrder = () => {
       return;
     }
 
+    // ✅ Phone number validation
+    if (!/^\d{10}$/.test(formData.phone)) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return;
+    }
+
     setIsLoading(true);
 
     if (window.fbq) {
@@ -371,6 +377,7 @@ const PlaceOrder = () => {
           className="bg-[#1A0E0E] border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-500 rounded py-1.5 px-3.5 w-full"
           type="number"
           placeholder="Phone"
+          min={10}
         />
         <div className>
           <p className="text-white my-2">
@@ -425,7 +432,7 @@ const PlaceOrder = () => {
                   method === "razorpay" ? "bg-green-400" : ""
                 }`}
               ></p>
-              <img className="h-5 mx-4" src={assets.razorpay_logo} alt="" />
+              <img className="h-5 mx-4" src={assets.onlinepay} alt="" />
             </div>
           </div>
 

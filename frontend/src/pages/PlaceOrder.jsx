@@ -155,6 +155,11 @@ const PlaceOrder = () => {
       return;
     }
 
+    if (!/^\d{6}$/.test(formData.zipcode)) {
+      toast.error("Please enter a valid 6-digit pincode");
+      return;
+    }
+
     setIsLoading(true);
 
     if (window.fbq) {

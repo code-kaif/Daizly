@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { assets } from "../assets/assets";
+import { ShopContext } from "../context/ShopContext";
 
 const Hero = () => {
+  const { navigate } = useContext(ShopContext);
   return (
     <div className="flex flex-col-reverse sm:flex-row border border-gray-200 bg-[#0D0D0D] h-auto sm:h-[80vh]">
       {/* Hero Left Side */}
@@ -22,7 +24,12 @@ const Hero = () => {
 
           {/* CTA */}
           <div className="flex items-center justify-center sm:justify-start gap-2">
-            <p className="font-semibold text-sm md:text-base">SHOP NOW</p>
+            <p
+              onClick={() => navigate("/collection")}
+              className="font-semibold text-sm md:text-base cursor-pointer"
+            >
+              SHOP NOW
+            </p>
             <p className="w-8 md:w-11 h-[1px] bg-white"></p>
           </div>
         </div>

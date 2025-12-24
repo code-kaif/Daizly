@@ -7,6 +7,46 @@ import "react-toastify/dist/ReactToastify.css";
 const Cancel = ({ token }) => {
   const [cancelledOrders, setCancelledOrders] = useState([]);
 
+  // Helper function to get image URL from either old or new schema
+  const getImageUrl = (product) => {
+    // Try new schema first: product.images array of objects
+    if (
+      product.images &&
+      Array.isArray(product.images) &&
+      product.images.length > 0
+    ) {
+      const firstImage = product.images[0];
+      if (firstImage && typeof firstImage === "object" && firstImage.url) {
+        return firstImage.url;
+      }
+      if (typeof firstImage === "string") {
+        return firstImage;
+      }
+    }
+
+    // Fallback to old schema: product.image array of strings
+    if (
+      product.image &&
+      Array.isArray(product.image) &&
+      product.image.length > 0
+    ) {
+      return product.image[0];
+    }
+
+    // Return a placeholder if no image found
+    return "https://via.placeholder.com/48";
+  };
+
+  // Helper to check if URL is a video
+  const isVideoUrl = (url) => {
+    if (!url) return false;
+    return (
+      /\.(mp4|webm|ogg|mov|avi|wmv)$/i.test(url) ||
+      url.includes("/video/") ||
+      url.includes("video=true")
+    );
+  };
+
   const fetchCancelledOrders = async () => {
     try {
       const response = await axios.get(`${backendUrl}/api/order/cancelled`, {
@@ -67,38 +107,54 @@ const Cancel = ({ token }) => {
 
               {/* Order Items */}
               <div className="divide-y">
-                {order.items.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-4"
-                  >
-                    <div className="flex items-start gap-4 text-sm w-full md:w-1/2">
-                      {item.image[0]?.match(/\.(mp4|webm|ogg)$/i) ? (
-                        <video
-                          src={item.image[0]}
-                          className="w-12 h-12 object-cover rounded"
-                          muted
-                          autoPlay
-                          loop
-                        />
-                      ) : (
-                        <img
-                          src={item.image[0]}
-                          alt={item.name}
-                          className="w-12 h-12 object-cover rounded"
-                        />
-                      )}
+                {order.items.map((item, index) => {
+                  const imageUrl = getImageUrl(item);
+                  const isVideo = isVideoUrl(imageUrl);
 
-                      <div>
-                        <p className="font-medium text-gray-200">{item.name}</p>
-                        <p className="text-sm text-gray-200 mt-1">
-                          ₹{item.discount} | Quantity: {item.quantity} | Size:{" "}
-                          {item.size}
-                        </p>
+                  return (
+                    <div
+                      key={index}
+                      className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-4"
+                    >
+                      <div className="flex items-start gap-4 text-sm w-full md:w-1/2">
+                        {isVideo ? (
+                          <div className="relative">
+                            <video
+                              src={imageUrl}
+                              className="w-12 h-12 object-cover rounded"
+                              muted
+                              autoPlay
+                              loop
+                            />
+                            <div className="absolute top-0 left-0 bg-black bg-opacity-50 px-1 text-xs">
+                              VID
+                            </div>
+                          </div>
+                        ) : (
+                          <img
+                            src={imageUrl}
+                            alt={item.name}
+                            className="w-12 h-12 object-cover rounded"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "https://via.placeholder.com/48";
+                            }}
+                          />
+                        )}
+
+                        <div>
+                          <p className="font-medium text-gray-200">
+                            {item.name}
+                          </p>
+                          <p className="text-sm text-gray-200 mt-1">
+                            ₹{item.discount} | Quantity: {item.quantity} | Size:{" "}
+                            {item.size}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}

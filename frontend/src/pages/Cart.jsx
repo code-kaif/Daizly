@@ -11,6 +11,38 @@ const Cart = () => {
 
   const [cartData, setCartData] = useState([]);
 
+  // Helper to get image URL from either old or new schema
+  const getImageUrl = (product) => {
+    if (!product) return assets.placeholder_image;
+
+    // New schema: images array of objects
+    if (
+      product.images &&
+      Array.isArray(product.images) &&
+      product.images.length > 0
+    ) {
+      const firstImage = product.images[0];
+      if (firstImage && typeof firstImage === "object" && firstImage.url) {
+        return firstImage.url;
+      }
+      if (typeof firstImage === "string") {
+        return firstImage;
+      }
+    }
+
+    // Old schema: image array of strings
+    if (
+      product.image &&
+      Array.isArray(product.image) &&
+      product.image.length > 0
+    ) {
+      return product.image[0];
+    }
+
+    // Fallback to placeholder
+    return assets.placeholder_image;
+  };
+
   // Add fbq tracking when quantity changes
   const handleQuantityChange = (id, size, qty, product) => {
     updateQuantity(id, size, qty);
@@ -73,6 +105,8 @@ const Cart = () => {
                 return null;
               }
 
+              const imageUrl = getImageUrl(productData);
+
               return (
                 <div
                   key={index}
@@ -81,8 +115,12 @@ const Cart = () => {
                   <div className="flex items-start gap-6">
                     <img
                       className="w-16 sm:w-20 object-cover rounded"
-                      src={productData.image?.[0] || assets.placeholder_image}
+                      src={imageUrl}
                       alt={productData.name || "Product"}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = assets.placeholder_image;
+                      }}
                     />
                     <div>
                       <p className="text-xs sm:text-lg font-medium">

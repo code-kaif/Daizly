@@ -24,3 +24,21 @@ a.active hr {
     color: white;
   }
 }
+
+/* Add this to your CSS file */
+.group:hover .group-hover\:opacity-0 {
+  opacity: 0 !important;
+}
+
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1 !important;
+}
+
+/* Force hover to work */
+.group:hover [class*="group-hover:opacity-0"] {
+  opacity: 0 !important;
+}
+
+.group:hover [class*="group-hover:opacity-100"] {
+  opacity: 1 !important;
+}

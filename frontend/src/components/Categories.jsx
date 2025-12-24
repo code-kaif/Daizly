@@ -87,6 +87,10 @@ const CategorySection = () => {
                     src={cat.image}
                     alt={cat.name}
                     className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://via.placeholder.com/240x320";
+                    }}
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center">
                     <h3 className="text-base sm:text-lg font-bold">
@@ -136,7 +140,9 @@ const CategorySection = () => {
                 <ProductItem
                   key={item._id}
                   id={item._id}
-                  image={item.image}
+                  // Pass both image props for backward compatibility
+                  image={item.image} // Old schema: array of strings
+                  images={item.images} // New schema: array of objects
                   name={item.name}
                   discount={item.discount}
                   stockStatus={item.stockStatus}

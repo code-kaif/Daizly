@@ -1,5 +1,6 @@
-import { v2 as cloudinary } from "cloudinary";
+// controllers/productController.js
 import productModel from "../models/productModel.js";
+import { uploadToImageKit, deleteFromImageKit } from "../utils/imageUpload.js";
 
 // ==================== ADD PRODUCT ====================
 const addProduct = async (req, res) => {
@@ -12,27 +13,30 @@ const addProduct = async (req, res) => {
       category,
       sizes,
       bestseller,
-      stockStatus, // ✅ new field
+      stockStatus,
     } = req.body;
 
-    const image1 = req.files.image1 && req.files.image1[0];
-    const image2 = req.files.image2 && req.files.image2[0];
-    const image3 = req.files.image3 && req.files.image3[0];
-    const image4 = req.files.image4 && req.files.image4[0];
-    const image5 = req.files.image5 && req.files.image5[0];
+    // Upload images with proper metadata
+    const imageUploads = [];
+    const imageFields = ["image1", "image2", "image3", "image4", "image5"];
 
-    const images = [image1, image2, image3, image4, image5].filter(
-      (item) => item !== undefined
-    );
+    for (const field of imageFields) {
+      if (req.files && req.files[field] && req.files[field][0]) {
+        const uploadedImage = await uploadToImageKit(
+          req.files[field][0],
+          "products",
+          { fileName: `${name.replace(/\s+/g, "-")}-${field}` }
+        );
+        imageUploads.push(uploadedImage);
+      }
+    }
 
-    let imagesUrl = await Promise.all(
-      images.map(async (item) => {
-        let result = await cloudinary.uploader.upload(item.path, {
-          resource_type: "auto", // ✅ auto detects image OR video
-        });
-        return result.secure_url;
-      })
-    );
+    if (imageUploads.length === 0) {
+      return res.json({
+        success: false,
+        message: "At least one image is required",
+      });
+    }
 
     const productData = {
       name,
@@ -40,23 +44,27 @@ const addProduct = async (req, res) => {
       category,
       price: Number(price),
       discount: Number(discount),
-      bestseller: bestseller === "true" ? true : false,
-      sizes: JSON.parse(sizes),
-      stockStatus: stockStatus || "In stock", // ✅ save with default if missing
-      image: imagesUrl,
-      date: Date.now(),
+      bestseller: bestseller === "true",
+      sizes: JSON.parse(sizes || "[]"),
+      stockStatus: stockStatus || "In stock",
+      images: imageUploads, // Store images with metadata
     };
 
     const product = new productModel(productData);
     await product.save();
 
-    res.json({ success: true, message: "Product Added" });
+    res.json({
+      success: true,
+      message: "Product Added",
+      productId: product._id,
+    });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
 
+// ==================== UPDATE PRODUCT ====================
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -71,59 +79,45 @@ export const updateProduct = async (req, res) => {
       stockStatus,
     } = req.body;
 
-    // Get the existing product first
     const existingProduct = await productModel.findById(id);
     if (!existingProduct) {
       return res.json({ success: false, message: "Product not found" });
     }
 
-    // Handle new images if uploaded - but don't replace all images
-    const image1 = req.files?.image1 && req.files.image1[0];
-    const image2 = req.files?.image2 && req.files.image2[0];
-    const image3 = req.files?.image3 && req.files.image3[0];
-    const image4 = req.files?.image4 && req.files.image4[0];
-    const image5 = req.files?.image5 && req.files.image5[0];
+    let updatedImages = [...existingProduct.images];
 
-    // Start with existing images
-    let updatedImages = [...existingProduct.image];
+    // Update specific images if provided
+    const imageUpdates = [
+      { field: "image1", position: 0 },
+      { field: "image2", position: 1 },
+      { field: "image3", position: 2 },
+      { field: "image4", position: 3 },
+      { field: "image5", position: 4 },
+    ];
 
-    // Upload new images and replace specific positions
-    if (image1) {
-      const result = await cloudinary.uploader.upload(image1.path, {
-        resource_type: "auto",
-      });
-      updatedImages[0] = result.secure_url;
+    for (const { field, position } of imageUpdates) {
+      if (req.files && req.files[field] && req.files[field][0]) {
+        // Delete old image from ImageKit if exists
+        if (updatedImages[position] && updatedImages[position].fileId) {
+          await deleteFromImageKit(updatedImages[position].fileId);
+        }
+
+        // Upload new image
+        const newImage = await uploadToImageKit(
+          req.files[field][0],
+          "products",
+          { fileName: `${name || existingProduct.name}-${field}` }
+        );
+
+        updatedImages[position] = newImage;
+      }
     }
 
-    if (image2) {
-      const result = await cloudinary.uploader.upload(image2.path, {
-        resource_type: "auto",
-      });
-      updatedImages[1] = result.secure_url;
-    }
+    // Remove empty slots
+    updatedImages = updatedImages.filter(
+      (img) => img !== null && img !== undefined
+    );
 
-    if (image3) {
-      const result = await cloudinary.uploader.upload(image3.path, {
-        resource_type: "auto",
-      });
-      updatedImages[2] = result.secure_url;
-    }
-
-    if (image4) {
-      const result = await cloudinary.uploader.upload(image4.path, {
-        resource_type: "auto",
-      });
-      updatedImages[3] = result.secure_url;
-    }
-
-    if (image5) {
-      const result = await cloudinary.uploader.upload(image5.path, {
-        resource_type: "auto",
-      });
-      updatedImages[4] = result.secure_url;
-    }
-
-    // Prepare update object
     const updateData = {
       ...(name && { name }),
       ...(description && { description }),
@@ -135,7 +129,7 @@ export const updateProduct = async (req, res) => {
         bestseller: bestseller === "true",
       }),
       ...(typeof stockStatus !== "undefined" && { stockStatus }),
-      image: updatedImages, // Always include the merged image array
+      images: updatedImages,
     };
 
     const updatedProduct = await productModel.findByIdAndUpdate(
@@ -155,22 +149,37 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-// ==================== LIST PRODUCTS ====================
-const listProducts = async (req, res) => {
+// ==================== REMOVE PRODUCT ====================
+const removeProduct = async (req, res) => {
   try {
-    const products = await productModel.find({}).sort({ date: -1 });
-    res.json({ success: true, products });
+    const product = await productModel.findById(req.body.id);
+
+    if (product) {
+      // Delete all images from ImageKit
+      if (product.images && product.images.length > 0) {
+        for (const image of product.images) {
+          if (image.fileId) {
+            await deleteFromImageKit(image.fileId);
+          }
+        }
+      }
+
+      await productModel.findByIdAndDelete(req.body.id);
+      res.json({ success: true, message: "Product Removed" });
+    } else {
+      res.json({ success: false, message: "Product not found" });
+    }
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
 
-// ==================== REMOVE PRODUCT ====================
-const removeProduct = async (req, res) => {
+// ==================== LIST PRODUCTS ====================
+const listProducts = async (req, res) => {
   try {
-    await productModel.findByIdAndDelete(req.body.id);
-    res.json({ success: true, message: "Product Removed" });
+    const products = await productModel.find({}).sort({ date: -1 });
+    res.json({ success: true, products });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });

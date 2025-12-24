@@ -86,7 +86,9 @@ const Collection = () => {
               name={item.name}
               id={item._id}
               discount={item.discount}
-              image={item.image}
+              // Pass both image props for backward compatibility
+              image={item.image} // Old schema: array of strings
+              images={item.images} // New schema: array of objects
               stockStatus={item.stockStatus}
             />
           ))}

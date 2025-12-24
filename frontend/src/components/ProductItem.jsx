@@ -1,139 +1,125 @@
-import React, { useContext, useState, useRef } from "react";
-import { Play } from "lucide-react";
+import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { Link } from "react-router-dom";
-import { useDevice } from "../hooks/useDevice";
 
 const ProductItem = ({
   id,
   image = [],
+  images = [],
   name,
   discount,
   stockStatus = "In stock",
 }) => {
   const { currency } = useContext(ShopContext);
-  const { isInstagramBrowser } = useDevice();
-  const [videoPlaying, setVideoPlaying] = useState(false);
-  const videoRef = useRef(null);
 
-  const status = String(stockStatus).trim().toLowerCase(); // normalize
-  const isComingSoon = status === "coming soon" || status === "coming_soon";
-  const isOutOfStock = status === "out of stock" || status === "out_of_stock";
-  const showBadge = isComingSoon || isOutOfStock;
+  // Get images from either schema
+  const getImages = () => {
+    if (images?.length > 0) return images;
+    return image || [];
+  };
 
-  const handleVideoPlay = () => {
-    if (videoRef.current) {
-      videoRef.current.play();
-      setVideoPlaying(true);
+  const productImages = getImages();
+  const image1 = productImages[0];
+  const image2 = productImages[1];
+
+  // 🔥 universal video detector
+  const isVideoItem = (item) => {
+    if (!item) return false;
+
+    if (typeof item === "object") {
+      return item.mimeType?.startsWith("video/");
     }
-  };
 
-  const handleVideoPause = () => {
-    if (videoRef.current) {
-      videoRef.current.pause();
-      setVideoPlaying(false);
+    if (typeof item === "string") {
+      return /\.(mp4|mov|webm|ogg)$/i.test(item);
     }
+
+    return false;
   };
 
-  // Check if file is a video
-  const isVideoFile = (url) => {
-    return (
-      url &&
-      (url.includes(".mp4") ||
-        url.includes(".mov") ||
-        url.includes("video/upload"))
-    );
-  };
+  const getUrl = (item) => (typeof item === "string" ? item : item?.url);
+
+  const status = stockStatus?.toLowerCase();
+  const showBadge = status === "coming soon" || status === "out of stock";
 
   return (
-    <Link
-      onClick={() => scrollTo(0, 0)}
-      className="text-gray-700 cursor-pointer"
-      to={`/product/${id}`}
-    >
-      <div className="overflow-hidden rounded-md bg-white shadow-sm">
-        <div className="relative w-full aspect-[4/5] bg-gray-100">
-          {/* Primary media */}
-          {image?.[0] &&
-            (isVideoFile(image[0]) && !isInstagramBrowser ? (
+    <Link to={`/product/${id}`} className="block group">
+      <div className="relative overflow-hidden rounded-lg bg-gray-100 aspect-[4/5]">
+        {/* FIRST MEDIA */}
+        {image1 && (
+          <div className="absolute inset-0 transition-all duration-500 group-hover:opacity-0">
+            {isVideoItem(image1) ? (
               <video
-                src={image[0]}
-                className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100 md:hover:opacity-0"
-                autoPlay
+                src={getUrl(image1)}
                 muted
                 loop
                 playsInline
+                preload="metadata"
+                onMouseEnter={(e) => e.currentTarget.play()}
+                onMouseLeave={(e) => {
+                  e.currentTarget.pause();
+                  e.currentTarget.currentTime = 0;
+                }}
+                className="w-full h-full object-cover"
               />
-            ) : isVideoFile(image[0]) && isInstagramBrowser ? (
-              // For iOS Instagram: Show video with manual play button
-              <div className="relative w-full h-full">
-                <video
-                  ref={videoRef}
-                  src={image[0]}
-                  className="h-full w-full object-cover absolute inset-0 opacity-100"
-                  muted
-                  playsInline
-                  onEnded={() => setVideoPlaying(false)}
-                />
-                {!videoPlaying && (
-                  <div
-                    className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/30"
-                    onClick={handleVideoPlay}
-                  >
-                    <div className="bg-black/70 rounded-full p-2">
-                      <Play size={20} className="text-white" />
-                    </div>
-                  </div>
-                )}
-              </div>
             ) : (
               <img
-                src={image[0]}
+                src={getUrl(image1)}
                 alt={name}
-                className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-100 md:hover:opacity-0"
+                className="w-full h-full object-cover"
               />
-            ))}
+            )}
+          </div>
+        )}
 
-          {/* Hover media - Only show for non-iOS Instagram browsers */}
-          {image?.[1] &&
-            !isInstagramBrowser &&
-            (isVideoFile(image[1]) ? (
+        {/* SECOND MEDIA (HOVER) */}
+        {image2 && (
+          <div className="absolute inset-0 opacity-0 transition-all duration-500 group-hover:opacity-100">
+            {isVideoItem(image2) ? (
               <video
-                src={image[1]}
-                className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-0 md:hover:opacity-100"
-                autoPlay
+                src={getUrl(image2)}
                 muted
                 loop
                 playsInline
+                preload="metadata"
+                onMouseEnter={(e) => e.currentTarget.play()}
+                onMouseLeave={(e) => {
+                  e.currentTarget.pause();
+                  e.currentTarget.currentTime = 0;
+                }}
+                className="w-full h-full object-cover"
               />
             ) : (
               <img
-                src={image[1]}
-                alt={name}
-                className="h-full w-full object-cover absolute inset-0 transition-opacity duration-300 opacity-0 md:hover:opacity-100"
+                src={getUrl(image2)}
+                alt={`${name} alternate`}
+                className="w-full h-full object-cover"
               />
-            ))}
+            )}
+          </div>
+        )}
 
-          {/* Center badge for Coming Soon / Out of Stock */}
-          {showBadge && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-              <div
-                className={`flex items-center justify-center w-20 h-20 rounded-full text-white text-xs font-semibold shadow-lg ${
-                  isComingSoon ? "bg-green-600" : "bg-red-600"
-                }`}
-              >
-                {isComingSoon ? "Coming Soon" : "Out of Stock"}
-              </div>
+        {/* STOCK BADGE */}
+        {showBadge && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
+            <div
+              className={`px-4 py-2 rounded-full text-white text-sm ${
+                status === "coming soon" ? "bg-green-600" : "bg-red-600"
+              }`}
+            >
+              {status === "coming soon" ? "Coming Soon" : "Out of Stock"}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
-      <p className="pt-3 pb-1 text-sm line-clamp-1 text-white">{name}</p>
-      <p className="text-sm font-medium text-white">
-        {currency}
-        {discount}
-      </p>
+      <div className="mt-3">
+        <h3 className="text-white text-sm font-medium line-clamp-1">{name}</h3>
+        <p className="text-white font-bold mt-1">
+          {currency}
+          {discount}
+        </p>
+      </div>
     </Link>
   );
 };

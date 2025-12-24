@@ -1,5 +1,3 @@
-// Frontend
-
 import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
@@ -15,6 +13,38 @@ const Orders = () => {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Helper to get image URL from either old or new schema
+  const getImageUrl = (product) => {
+    if (!product) return "https://via.placeholder.com/80";
+
+    // New schema: images array of objects
+    if (
+      product.images &&
+      Array.isArray(product.images) &&
+      product.images.length > 0
+    ) {
+      const firstImage = product.images[0];
+      if (firstImage && typeof firstImage === "object" && firstImage.url) {
+        return firstImage.url;
+      }
+      if (typeof firstImage === "string") {
+        return firstImage;
+      }
+    }
+
+    // Old schema: image array of strings
+    if (
+      product.image &&
+      Array.isArray(product.image) &&
+      product.image.length > 0
+    ) {
+      return product.image[0];
+    }
+
+    // Fallback to placeholder
+    return "https://via.placeholder.com/80";
+  };
 
   // Function to convert numeric status codes to readable text
   const getStatusDisplay = (status) => {
@@ -157,9 +187,11 @@ const Orders = () => {
       if (response.data.success) {
         setShowModal(false);
         loadOrderData();
+        toast.success("Order cancelled successfully");
       }
     } catch (error) {
       console.error("Error cancelling order:", error);
+      toast.error("Failed to cancel order");
     } finally {
       setIsLoading(false);
     }
@@ -189,123 +221,137 @@ const Orders = () => {
         </div>
       ) : (
         <div>
-          {orderData.map((item, index) => (
-            <div
-              key={index}
-              className="py-4 border-t border-b text-gray-200 grid grid-cols-1 md:grid-cols-3 gap-6 items-center"
-            >
-              {/* Item Details */}
-              <div className="flex items-start gap-4 text-sm">
-                <img className="w-16 sm:w-20" src={item.image[0]} alt="" />
-                <div>
-                  <p className="sm:text-base font-medium">{item.name}</p>
-                  <div className="flex flex-wrap gap-3 mt-1 text-sm text-gray-200">
-                    <p>₹{item.discount}</p>
-                    <p>Qty: {item.quantity}</p>
-                    <p>Size: {item.size}</p>
+          {orderData.map((item, index) => {
+            const imageUrl = getImageUrl(item);
+            const statusColor = getStatusColor(item.status);
+
+            return (
+              <div
+                key={index}
+                className="py-4 border-t border-b text-gray-200 grid grid-cols-1 md:grid-cols-3 gap-6 items-center"
+              >
+                {/* Item Details */}
+                <div className="flex items-start gap-4 text-sm">
+                  <img
+                    className="w-16 sm:w-20 object-cover rounded"
+                    src={imageUrl}
+                    alt={item.name}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://via.placeholder.com/80";
+                    }}
+                  />
+                  <div>
+                    <p className="sm:text-base font-medium">{item.name}</p>
+                    <div className="flex flex-wrap gap-3 mt-1 text-sm text-gray-200">
+                      <p>
+                        {currency}
+                        {item.discount}
+                      </p>
+                      <p>Qty: {item.quantity}</p>
+                      <p>Size: {item.size}</p>
+                    </div>
+                    <p className="text-sm text-gray-200 mt-1">
+                      Date: {new Date(item.date).toDateString()}
+                    </p>
+                    <p className="text-sm text-gray-200">
+                      Payment: {item.paymentMethod}
+                    </p>
+                    {/* Current Order Status */}
+                    <p className="text-sm mt-1">
+                      Status:{" "}
+                      <span className={`font-medium text-${statusColor}-400`}>
+                        {getStatusDisplay(item.status)}
+                      </span>
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-200 mt-1">
-                    Date: {new Date(item.date).toDateString()}
-                  </p>
-                  <p className="text-sm text-gray-200">
-                    Payment: {item.paymentMethod}
-                  </p>
-                  {/* Current Order Status */}
-                  <p className="text-sm mt-1">
-                    Status:{" "}
-                    <span
-                      className={`font-medium text-${getStatusColor(
-                        item.status
-                      )}-400`}
-                    >
-                      {getStatusDisplay(item.status)}
-                    </span>
-                  </p>
                 </div>
-              </div>
 
-              {/* Tracking Progress */}
-              <div className="flex flex-col gap-2 px-4">
-                {item.orderCancelled || item.status === "Cancelled" ? (
-                  <div className="flex items-center gap-2 text-sm text-red-400">
-                    <span className="w-3 h-3 rounded-full bg-red-500"></span>
-                    <p>Order Cancelled - Tracking not available</p>
-                  </div>
-                ) : item.trackingSteps && item.trackingSteps.length > 0 ? (
-                  item.trackingSteps.map((step, idx) => {
-                    const displayStatus = getStatusDisplay(step.current_status);
-                    const statusColor = getStatusColor(step.current_status);
+                {/* Tracking Progress */}
+                <div className="flex flex-col gap-2 px-4">
+                  {item.orderCancelled || item.status === "Cancelled" ? (
+                    <div className="flex items-center gap-2 text-sm text-red-400">
+                      <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                      <p>Order Cancelled - Tracking not available</p>
+                    </div>
+                  ) : item.trackingSteps && item.trackingSteps.length > 0 ? (
+                    item.trackingSteps.map((step, idx) => {
+                      const displayStatus = getStatusDisplay(
+                        step.current_status
+                      );
+                      const stepColor = getStatusColor(step.current_status);
 
-                    return (
-                      <div
-                        key={idx}
-                        className={`flex items-center gap-2 text-sm text-${statusColor}-400`}
-                      >
-                        <span
-                          className={`w-3 h-3 rounded-full bg-${statusColor}-500`}
-                        ></span>
-                        <div>
-                          <p className="font-medium">{displayStatus}</p>
-                          <p className="text-xs text-gray-400">
-                            {displayStatus} – {step.status_date}
-                            {step.location && ` - ${step.location}`}
-                            {step.message && ` (${step.message})`}
-                          </p>
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex items-center gap-2 text-sm text-${stepColor}-400`}
+                        >
+                          <span
+                            className={`w-3 h-3 rounded-full bg-${stepColor}-500`}
+                          ></span>
+                          <div>
+                            <p className="font-medium">{displayStatus}</p>
+                            <p className="text-xs text-gray-400">
+                              {displayStatus} – {step.status_date}
+                              {step.location && ` - ${step.location}`}
+                              {step.message && ` (${step.message})`}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <span className="w-3 h-3 rounded-full bg-gray-500"></span>
-                    <p>Tracking not available yet</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Cancel Button */}
-              <div className="flex justify-center md:justify-end relative">
-                {(item.status === "Order Placed" ||
-                  item.status === "Processing" ||
-                  item.status === "Dispatched" ||
-                  item.status === "In Transit" ||
-                  // Handle numeric status codes too
-                  item.status === "0" ||
-                  item.status === "1" ||
-                  item.status === "2" ||
-                  item.status === "3" ||
-                  item.status === "4") &&
-                  !item.orderCancelled && (
-                    <div className="relative">
-                      <button
-                        onClick={() =>
-                          setSelectedOrderId(
-                            selectedOrderId === item._id ? null : item._id
-                          )
-                        }
-                        className="p-2 rounded-full hover:bg-gray-700 transition"
-                      >
-                        <MoreHorizontal className="text-white" size={20} />
-                      </button>
-
-                      {selectedOrderId === item._id && (
-                        <div className="absolute right-0 mt-2 w-32 bg-gray-800 rounded-md shadow-lg z-50 border border-gray-600">
-                          <button
-                            onClick={() => {
-                              setShowModal(true);
-                              setSelectedOrderId(item._id);
-                            }}
-                            className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700 hover:text-red-400"
-                          >
-                            Cancel Order
-                          </button>
-                        </div>
-                      )}
+                      );
+                    })
+                  ) : (
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <span className="w-3 h-3 rounded-full bg-gray-500"></span>
+                      <p>Tracking not available yet</p>
                     </div>
                   )}
+                </div>
+
+                {/* Cancel Button */}
+                <div className="flex justify-center md:justify-end relative">
+                  {(item.status === "Order Placed" ||
+                    item.status === "Processing" ||
+                    item.status === "Dispatched" ||
+                    item.status === "In Transit" ||
+                    // Handle numeric status codes too
+                    item.status === "0" ||
+                    item.status === "1" ||
+                    item.status === "2" ||
+                    item.status === "3" ||
+                    item.status === "4") &&
+                    !item.orderCancelled && (
+                      <div className="relative">
+                        <button
+                          onClick={() =>
+                            setSelectedOrderId(
+                              selectedOrderId === item._id ? null : item._id
+                            )
+                          }
+                          className="p-2 rounded-full hover:bg-gray-700 transition"
+                        >
+                          <MoreHorizontal className="text-white" size={20} />
+                        </button>
+
+                        {selectedOrderId === item._id && (
+                          <div className="absolute right-0 mt-2 w-32 bg-gray-800 rounded-md shadow-lg z-50 border border-gray-600">
+                            <button
+                              onClick={() => {
+                                setShowModal(true);
+                                setSelectedOrderId(item._id);
+                              }}
+                              className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-700 hover:text-red-400"
+                            >
+                              Cancel Order
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

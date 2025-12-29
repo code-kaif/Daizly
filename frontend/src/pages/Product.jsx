@@ -294,103 +294,96 @@ const Product = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           {/* ---------- Images Section ---------- */}
+          {/* ---------- Images Section ---------- */}
           <div className="lg:w-1/2">
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6">
               {/* Thumbnails - Vertical on desktop, horizontal on mobile */}
               {images.length > 0 && (
-                <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:h-[500px] pb-2 md:pb-0 order-2 md:order-1">
-                  {images.map((img, index) => {
-                    const imgObj = getImageObject(img);
-                    const isVideo = imgObj ? imgObj.isVideo : false;
-                    const url = imgObj ? getImageUrl(imgObj) : null;
+                <div className="order-2 md:order-1">
+                  <div className="md:hidden mb-2">
+                    <p className="text-sm text-gray-400 mb-1">
+                      Swipe to see more
+                    </p>
+                  </div>
+                  <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:max-h-[500px] py-2 md:py-0 scrollbar-thin">
+                    {images.map((img, index) => {
+                      const imgObj = getImageObject(img);
+                      const isVideo = imgObj ? imgObj.isVideo : false;
+                      const url = imgObj ? getImageUrl(imgObj) : null;
 
-                    return (
-                      <div
-                        key={index}
-                        onClick={() => handleThumbnailClick(index)}
-                        className={`flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-lg cursor-pointer border-2 transition-all ${
-                          currentImageIndex === index
-                            ? "border-[#005530] ring-2 ring-[#005530] ring-opacity-50"
-                            : "border-gray-700 hover:border-gray-500"
-                        }`}
-                      >
-                        {url ? (
-                          <div className="relative w-full h-full">
-                            {isVideo ? (
-                              <>
-                                {/* Video thumbnail with play button */}
-                                <div className="w-full h-full bg-gray-800 rounded-lg overflow-hidden">
-                                  <video
-                                    src={url}
-                                    className="w-full h-full object-cover opacity-70"
-                                    muted
-                                    playsInline
-                                    preload="metadata"
-                                    onLoadedData={(e) => {
-                                      // Try to set thumbnail from video
-                                      const canvas =
-                                        document.createElement("canvas");
-                                      canvas.width = e.target.videoWidth;
-                                      canvas.height = e.target.videoHeight;
-                                      const ctx = canvas.getContext("2d");
-                                      ctx.drawImage(
-                                        e.target,
-                                        0,
-                                        0,
-                                        canvas.width,
-                                        canvas.height
-                                      );
-                                      // Don't set as background to avoid CORS issues
-                                    }}
-                                  />
-                                </div>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <div className="bg-black bg-opacity-60 rounded-full p-2">
-                                    <Play className="w-6 h-6 text-white" />
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => handleThumbnailClick(index)}
+                          className={`flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-lg cursor-pointer border-2 transition-all focus:outline-none focus:ring-2 focus:ring-[#005530] focus:ring-opacity-50 ${
+                            currentImageIndex === index
+                              ? "border-[#005530] ring-2 ring-[#005530] ring-opacity-50"
+                              : "border-gray-700 hover:border-gray-500"
+                          }`}
+                          type="button"
+                          aria-label={`View image ${index + 1}`}
+                        >
+                          {url ? (
+                            <div className="relative w-full h-full rounded-md overflow-hidden">
+                              {isVideo ? (
+                                <>
+                                  <div className="w-full h-full bg-gray-800">
+                                    <video
+                                      src={url}
+                                      className="w-full h-full object-cover"
+                                      muted
+                                      playsInline
+                                      preload="metadata"
+                                    />
                                   </div>
-                                </div>
-                                <div className="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">
-                                  VID
-                                </div>
-                              </>
-                            ) : (
-                              <img
-                                src={url}
-                                className="w-full h-full object-cover rounded-lg"
-                                alt={`Thumbnail ${index + 1}`}
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src =
-                                    "https://via.placeholder.com/96";
-                                }}
-                              />
-                            )}
-                          </div>
-                        ) : (
-                          <div className="w-full h-full bg-gray-800 rounded-lg flex items-center justify-center">
-                            <span className="text-gray-500 text-xs">
-                              No image
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="bg-black bg-opacity-50 rounded-full p-1">
+                                      <Play className="w-4 h-4 text-white" />
+                                    </div>
+                                  </div>
+                                  <div className="absolute bottom-0 right-0 bg-black bg-opacity-70 text-white text-[10px] px-1 rounded-tl">
+                                    VID
+                                  </div>
+                                </>
+                              ) : (
+                                <img
+                                  src={url}
+                                  className="w-full h-full object-cover"
+                                  alt={`Thumbnail ${index + 1}`}
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src =
+                                      "https://via.placeholder.com/80";
+                                  }}
+                                />
+                              )}
+                            </div>
+                          ) : (
+                            <div className="w-full h-full bg-gray-800 rounded-lg flex items-center justify-center">
+                              <span className="text-gray-500 text-xs">
+                                No image
+                              </span>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
-              {/* Main Image/Video */}
+              {/* Main Image/Video Container - Fixed height */}
               <div className="relative flex-1 order-1 md:order-2">
-                {currentImage ? (
-                  (() => {
-                    const imgObj = getImageObject(currentImage);
-                    const isVideo = imgObj ? imgObj.isVideo : false;
-                    const url = imgObj ? getImageUrl(imgObj) : null;
+                <div className="w-full aspect-square md:aspect-[4/5] lg:aspect-square max-h-[500px] md:max-h-[600px] rounded-xl overflow-hidden">
+                  {currentImage ? (
+                    (() => {
+                      const imgObj = getImageObject(currentImage);
+                      const isVideo = imgObj ? imgObj.isVideo : false;
+                      const url = imgObj ? getImageUrl(imgObj) : null;
 
-                    if (isVideo && url) {
-                      return (
-                        <div className="relative main-video">
-                          <div className="aspect-square md:aspect-[4/5] lg:aspect-square rounded-xl overflow-hidden bg-black">
+                      if (isVideo && url) {
+                        return (
+                          <>
                             <video
                               src={url}
                               className="w-full h-full object-contain"
@@ -398,65 +391,75 @@ const Product = () => {
                               autoPlay
                               muted
                               playsInline
-                              preload="metadata"
+                              controlsList="nodownload"
                               onPlay={() => setVideoPlaying(true)}
                               onPause={() => setVideoPlaying(false)}
                             />
-                          </div>
-                        </div>
-                      );
-                    } else if (url) {
-                      return (
-                        <div className="aspect-square md:aspect-[4/5] lg:aspect-square rounded-xl overflow-hidden bg-gray-900">
+                            <div className="absolute top-3 left-3 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                              Video
+                            </div>
+                          </>
+                        );
+                      } else if (url) {
+                        return (
                           <img
                             src={url}
-                            alt={productData.name}
-                            className="w-full h-full object-cover"
+                            alt={productData.name || "Product image"}
+                            className="w-full h-full object-contain"
                             onError={(e) => {
                               e.target.onerror = null;
                               e.target.src = "https://via.placeholder.com/500";
                             }}
                           />
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div className="aspect-square md:aspect-[4/5] lg:aspect-square bg-gray-900 rounded-xl flex items-center justify-center">
-                          <span className="text-gray-500">
-                            No image available
-                          </span>
-                        </div>
-                      );
-                    }
-                  })()
-                ) : (
-                  <div className="aspect-square md:aspect-[4/5] lg:aspect-square bg-gray-900 rounded-xl flex items-center justify-center">
-                    <span className="text-gray-500">No image available</span>
-                  </div>
-                )}
+                        );
+                      } else {
+                        return (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-gray-500">
+                              No image available
+                            </span>
+                          </div>
+                        );
+                      }
+                    })()
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-gray-500">No image available</span>
+                    </div>
+                  )}
+                </div>
 
-                {/* Navigation Arrows - Only show on mobile or when multiple images */}
+                {/* Navigation Arrows - Only show when multiple images */}
                 {images.length > 1 && (
                   <>
                     <button
                       onClick={prevImage}
-                      className={`absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-3 rounded-full transition-all ${
+                      className={`absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-2 md:p-3 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-white ${
                         isMobile ? "block" : "hidden md:block"
                       }`}
                       aria-label="Previous image"
+                      type="button"
                     >
-                      <ChevronLeft size={24} />
+                      <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
                     <button
                       onClick={nextImage}
-                      className={`absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-3 rounded-full transition-all ${
+                      className={`absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-2 md:p-3 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-white ${
                         isMobile ? "block" : "hidden md:block"
                       }`}
                       aria-label="Next image"
+                      type="button"
                     >
-                      <ChevronRight size={24} />
+                      <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
                   </>
+                )}
+
+                {/* Image Counter */}
+                {images.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded-full">
+                    {currentImageIndex + 1} / {images.length}
+                  </div>
                 )}
               </div>
             </div>
